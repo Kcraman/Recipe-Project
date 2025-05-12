@@ -52,6 +52,24 @@
             transform: translateY(-2px);
             box-shadow: 0 5px 15px rgba(91, 75, 58, 0.2);
         }
+        .cancel-btn {
+            margin-top: 20px;
+            padding: 12px 30px;
+            background-color: #5B4B3A;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        .cancel-btn:hover{
+            background-color:#745d47
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(91, 75, 58, 0.2);
+
+        }
         .top-bar {
             height: 80px;
             width: 100%;
@@ -183,12 +201,19 @@
 
     <div class="greeting">
         <div class="greeting-text" id="greeting">Loading...</div>
-        <button class="logout-btn" onclick="logout()">Logout</button>
+        <div class="button-container">
+            <button class="logout-btn" onclick="logout()">Logout</button>
+            <button class="cancel-btn" onclick="goBack()">Cancel</button>
+        </div>
     </div>
 
     <script>
         function toggleMenu() {
             document.getElementById('sidebar').classList.toggle('active');
+        }
+        
+        function goBack() {
+            window.location.href = "home.html";
         }
         
         document.querySelectorAll('.sidebar a').forEach(link => {
@@ -221,6 +246,8 @@
         window.logout = async function() {
             try {
                 await signOut(auth);
+                // Store the message in localStorage before redirecting
+                localStorage.setItem('logoutMessage', 'You have been successfully logged out. Please login again to continue.');
                 window.location.href = "Login.html";
             } catch (error) {
                 alert("Error signing out: " + error.message);
