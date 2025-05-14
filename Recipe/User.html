@@ -52,6 +52,21 @@
             transform: translateY(-2px);
             box-shadow: 0 5px 15px rgba(91, 75, 58, 0.2);
         }
+        .cancel-btn {
+            margin-top: 20px;
+            padding: 12px 30px;
+            background-color: #5B4B3A;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        .cancel-btn:hover {
+            background-color: #745d47;
+        }
         .top-bar {
             height: 80px;
             width: 100%;
@@ -102,6 +117,8 @@
         .heading-text {
             position: relative;
             transition: all 0.3s ease;
+            color: #F5E6C8;
+            text-decoration: none;
         }
         .heading-text:hover {
             transform: scale(1.05);
@@ -157,7 +174,7 @@
     <div class="top-bar">
         <h1 class="heading">
             <i class="fas fa-utensils"></i>
-            <span class="heading-text">Recipe Finder</span>
+            <a href="home.html" class="heading-text">Recipe Finder</a>
             <i class="fas fa-utensils"></i>
         </h1>
     </div>
@@ -171,19 +188,22 @@
     <div class="sidebar" id="sidebar">
         <div>
             <a href="home.html">Home</a>
-            <a href="#">Recipes</a>
+            <a href="recipe.html">Recipes</a>
             <a href="#">Search Ingredients</a>
             <a href="#">Saved</a>
             <a href="#">Favourites</a>
         </div>
         <div class="bottom-link">
-            <a href="#">User</a>
+            <a href="User.html">User</a>
         </div>
     </div>
 
     <div class="greeting">
         <div class="greeting-text" id="greeting">Loading...</div>
-        <button class="logout-btn" onclick="logout()">Logout</button>
+        <div class="button-container">
+            <button class="logout-btn" onclick="logout()">Logout</button>
+            <button class="cancel-btn" onclick="goBack()">Cancel</button>
+        </div>
     </div>
 
     <script>
@@ -191,10 +211,27 @@
             document.getElementById('sidebar').classList.toggle('active');
         }
         
+        function goBack() {
+            window.location.href = "home.html";
+        }
+        
         document.querySelectorAll('.sidebar a').forEach(link => {
             link.addEventListener('click', () => {
                 document.getElementById('sidebar').classList.remove('active');
             });
+        });
+
+        // Add click event listener to close sidebar when clicking outside
+        document.addEventListener('click', function(event) {
+            const sidebar = document.getElementById('sidebar');
+            const menuIcon = document.querySelector('.menu-icon');
+            
+            // Check if sidebar is active and click is outside both sidebar and menu icon
+            if (sidebar.classList.contains('active') && 
+                !sidebar.contains(event.target) && 
+                !menuIcon.contains(event.target)) {
+                sidebar.classList.remove('active');
+            }
         });
     </script>
 
@@ -221,6 +258,8 @@
         window.logout = async function() {
             try {
                 await signOut(auth);
+                // Store the message in localStorage before redirecting
+                localStorage.setItem('logoutMessage', 'You have been successfully logged out. Please login again to continue.');
                 window.location.href = "Login.html";
             } catch (error) {
                 alert("Error signing out: " + error.message);

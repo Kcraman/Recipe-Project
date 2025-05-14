@@ -270,8 +270,8 @@
   </a>
   <div class="sidebar" id="sidebar">
     <div>
-      <a href="#" class="menu-link">Home</a>
-      <a href="#" class="menu-link">Recipes</a>
+      <a href="home.html" class="menu-link">Home</a>
+      <a href="recipe.html" class="menu-link">Recipes</a>
       <a href="#" class="menu-link">Search Ingredients</a>
       <a href="#" class="menu-link">Saved</a>
       <a href="#" class="menu-link">Favourites</a>
@@ -300,6 +300,19 @@
       link.addEventListener('click', () => {
         document.getElementById('sidebar').classList.remove('active');
       });
+    });
+
+    // Add click event listener to close sidebar when clicking outside
+    document.addEventListener('click', function(event) {
+      const sidebar = document.getElementById('sidebar');
+      const menuIcon = document.querySelector('.menu-icon');
+      
+      // Check if sidebar is active and click is outside both sidebar and menu icon
+      if (sidebar.classList.contains('active') && 
+          !sidebar.contains(event.target) && 
+          !menuIcon.contains(event.target)) {
+        sidebar.classList.remove('active');
+      }
     });
   </script>
   <script type="module">

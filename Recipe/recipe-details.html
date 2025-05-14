@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <title>Search recipes</title>
+    <title>Recipe Details</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600&display=swap" rel="stylesheet">
     <style>
@@ -49,6 +49,18 @@
             display: flex;
             align-items: center;
             gap: 20px;
+        }
+
+        .heading-text {
+            position: relative;
+            transition: all 0.3s ease;
+            color: #F5E6C8;
+            text-decoration: none;
+        }
+
+        .heading-text:hover {
+            transform: scale(1.05);
+            color: #fff;
         }
 
         .menu-icon {
@@ -112,59 +124,6 @@
         .sidebar a:hover {
             background-color: rgba(255, 255, 255, 0.1);
             transform: translateX(5px);
-        }
-
-        .search-container {
-            position: relative;
-            top: 120px;
-            left: 50%;
-            transform: translateX(-50%);
-            z-index: 2;
-            width: 600px;
-            background: rgba(255, 255, 255, 0.95);
-            padding: 30px;
-            border-radius: 15px;
-            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
-            text-align: center;
-        }
-
-        .search-box {
-            display: flex;
-            gap: 10px;
-            margin-bottom: 20px;
-        }
-
-        input[type="text"] {
-            flex: 1;
-            padding: 12px 15px;
-            border: 2px solid #e0e0e0;
-            border-radius: 8px;
-            font-size: 16px;
-            transition: all 0.3s ease;
-        }
-
-        input[type="text"]:focus {
-            border-color: #5B4B3A;
-            outline: none;
-            box-shadow: 0 0 0 3px rgba(91, 75, 58, 0.1);
-        }
-
-        button {
-            padding: 12px 25px;
-            background-color: #5B4B3A;
-            color: white;
-            border: none;
-            border-radius: 8px;
-            font-size: 16px;
-            font-weight: 600;
-            cursor: pointer;
-            transition: all 0.3s ease;
-        }
-
-        button:hover {
-            background-color: #745d47;
-            transform: translateY(-2px);
-            box-shadow: 0 5px 15px rgba(91, 75, 58, 0.2);
         }
 
         .recipe-card {
@@ -317,15 +276,31 @@
             color: #fff;
         }
 
-        .heading-text {
-            position: relative;
+        .back-btn {
+            position: absolute;
+            top: 20px;
+            left: 20px;
+            padding: 10px 20px;
+            color: #5B4B3A;
+            border: none;
+            border-radius: 10px;
+            font-size: 16px;
+            font-weight: 500;
+            cursor: pointer;
             transition: all 0.3s ease;
-            color: #F5E6C8;
             text-decoration: none;
+            display: flex;
+            align-items: center;
+            gap: 8px;
         }
-        .heading-text:hover {
-            transform: scale(1.05);
-            color: #fff;
+
+        .back-btn span {
+            text-decoration: underline;
+        }
+
+        .back-btn:hover {
+            transform: translateX(-5px);
+            color: #745d47;
         }
     </style>
 </head>
@@ -364,39 +339,27 @@
         </div>
     </div>
 
-    <div class="search-container">
-        <div class="search-box">
-            <input id="search-box" type="text" placeholder="Search for another recipe..." />
-            <button id="search-btn">Search</button>
+    <div class="recipe-card" id="recipe-details">
+        <a href="javascript:history.back()" class="back-btn">
+            <i class="fas fa-arrow-left"></i>
+            <span>Back</span>
+        </a>
+        <h2 id="recipeName">Loading...</h2>
+        
+        <div class="recipe-section">
+            <h3><i class="fas fa-list"></i> Ingredients</h3>
+            <ul class="ingredients-list" id="ingredientsList">
+                <!-- Ingredients will be populated here -->
+            </ul>
+        </div>
+
+        <div class="recipe-section">
+            <h3><i class="fas fa-tasks"></i> Instructions</h3>
+            <ul class="instructions-list" id="instructionsList">
+                <!-- Instructions will be populated here -->
+            </ul>
         </div>
     </div>
-
-    <div class="recipe-card" id="recipe-details"></div>
-
-    <script>
-        function toggleMenu() {
-            document.getElementById('sidebar').classList.toggle('active');
-        }
-        
-        document.querySelectorAll('.sidebar a').forEach(link => {
-            link.addEventListener('click', () => {
-                document.getElementById('sidebar').classList.remove('active');
-            });
-        });
-
-        // Add click event listener to close sidebar when clicking outside
-        document.addEventListener('click', function(event) {
-            const sidebar = document.getElementById('sidebar');
-            const menuIcon = document.querySelector('.menu-icon');
-            
-            // Check if sidebar is active and click is outside both sidebar and menu icon
-            if (sidebar.classList.contains('active') && 
-                !sidebar.contains(event.target) && 
-                !menuIcon.contains(event.target)) {
-                sidebar.classList.remove('active');
-            }
-        });
-    </script>
 
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
@@ -437,65 +400,74 @@
             }
         });
 
-        const params = new URLSearchParams(window.location.search);
-        const recipeId = params.get("id");
-
-        const container = document.getElementById("recipe-details");
+        // Get recipe ID from URL
+        const urlParams = new URLSearchParams(window.location.search);
+        const recipeId = urlParams.get('id');
 
         if (recipeId) {
-            const docRef = doc(db, "Recipes", recipeId);
-            const docSnap = await getDoc(docRef);
+            const recipeRef = doc(db, "Recipes", recipeId);
+            const recipeSnap = await getDoc(recipeRef);
 
-            if (docSnap.exists()) {
-                const data = docSnap.data();
-                let html = "";
+            if (recipeSnap.exists()) {
+                const recipeData = recipeSnap.data();
+                
+                // Update recipe name with capitalized first letter
+                document.getElementById('recipeName').textContent = recipeData.name.charAt(0).toUpperCase() + recipeData.name.slice(1);
 
-                // Recipe Title
-                if (data.name) {
-                    html += `<h2><a href="recipe-details.html?id=${recipeId}" style="text-decoration: none; color: inherit;">${capitalize(data.name)}</a></h2>`;
+                // Update ingredients
+                const ingredientsList = document.getElementById('ingredientsList');
+                if (recipeData.ingredients && Array.isArray(recipeData.ingredients)) {
+                    recipeData.ingredients.forEach(ingredient => {
+                        const li = document.createElement('li');
+                        li.innerHTML = `<i class="fas fa-check"></i> ${ingredient}`;
+                        ingredientsList.appendChild(li);
+                    });
+                } else {
+                    ingredientsList.innerHTML = '<li>No ingredients available</li>';
                 }
 
-                // Ingredients Section
-                if (data.ingredients) {
-                    html += `
-                        <div class="recipe-section">
-                            <h3><i class="fas fa-list"></i> Ingredients</h3>
-                            <ul class="ingredients-list">`;
-                    if (Array.isArray(data.ingredients)) {
-                        data.ingredients.forEach(ingredient => {
-                            html += `<li><i class="fas fa-check"></i> ${ingredient}</li>`;
-                        });
-                    } else {
-                        html += `<li><i class="fas fa-check"></i> ${data.ingredients}</li>`;
-                    }
-                    html += `</ul></div>`;
+                // Update instructions
+                const instructionsList = document.getElementById('instructionsList');
+                if (recipeData.instructions && Array.isArray(recipeData.instructions)) {
+                    recipeData.instructions.forEach(instruction => {
+                        const li = document.createElement('li');
+                        li.textContent = instruction;
+                        instructionsList.appendChild(li);
+                    });
+                } else {
+                    instructionsList.innerHTML = '<li>No instructions available</li>';
                 }
-
-                container.innerHTML = html;
             } else {
-                container.innerHTML = "<p>Recipe not found.</p>";
+                document.getElementById('recipeName').textContent = 'Recipe not found';
             }
         } else {
-            container.innerHTML = "<p>No recipe ID provided.</p>";
+            document.getElementById('recipeName').textContent = 'No recipe selected';
         }
+    </script>
 
-        function capitalize(word) {
-            return word.charAt(0).toUpperCase() + word.slice(1);
+    <script>
+        function toggleMenu() {
+            document.getElementById('sidebar').classList.toggle('active');
         }
+        
+        document.querySelectorAll('.sidebar a').forEach(link => {
+            link.addEventListener('click', () => {
+                document.getElementById('sidebar').classList.remove('active');
+            });
+        });
 
-        document.querySelector("#search-btn").addEventListener("click", async () => {
-            const searchValue = document.querySelector("#search-box").value.trim().toLowerCase();
-            const q = query(collection(db, "Recipes"), where("name", "==", searchValue));
-            const recipe = await getDocs(q);
-
-            if (recipe.empty) {
-                alert("Recipe not found!");
-            } else {
-                recipe.forEach((doc) => {
-                    window.location.replace(`recipesearch.html?id=${doc.id}`);
-                });
+        // Add click event listener to close sidebar when clicking outside
+        document.addEventListener('click', function(event) {
+            const sidebar = document.getElementById('sidebar');
+            const menuIcon = document.querySelector('.menu-icon');
+            
+            // Check if sidebar is active and click is outside both sidebar and menu icon
+            if (sidebar.classList.contains('active') && 
+                !sidebar.contains(event.target) && 
+                !menuIcon.contains(event.target)) {
+                sidebar.classList.remove('active');
             }
         });
     </script>
 </body>
-</html>
+</html> 
