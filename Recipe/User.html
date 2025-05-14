@@ -117,6 +117,8 @@
         .heading-text {
             position: relative;
             transition: all 0.3s ease;
+            color: #F5E6C8;
+            text-decoration: none;
         }
         .heading-text:hover {
             transform: scale(1.05);
@@ -172,7 +174,7 @@
     <div class="top-bar">
         <h1 class="heading">
             <i class="fas fa-utensils"></i>
-            <span class="heading-text">Recipe Finder</span>
+            <a href="home.html" class="heading-text">Recipe Finder</a>
             <i class="fas fa-utensils"></i>
         </h1>
     </div>
@@ -217,6 +219,19 @@
             link.addEventListener('click', () => {
                 document.getElementById('sidebar').classList.remove('active');
             });
+        });
+
+        // Add click event listener to close sidebar when clicking outside
+        document.addEventListener('click', function(event) {
+            const sidebar = document.getElementById('sidebar');
+            const menuIcon = document.querySelector('.menu-icon');
+            
+            // Check if sidebar is active and click is outside both sidebar and menu icon
+            if (sidebar.classList.contains('active') && 
+                !sidebar.contains(event.target) && 
+                !menuIcon.contains(event.target)) {
+                sidebar.classList.remove('active');
+            }
         });
     </script>
 
