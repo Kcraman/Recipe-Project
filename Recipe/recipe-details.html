@@ -1,0 +1,238 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Recipe Details</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600&display=swap" rel="stylesheet">
+    <style>
+        body, html {
+            margin: 0;
+            padding: 0;
+            font-family: 'Poppins', sans-serif;
+            background: url('https://images.unsplash.com/photo-1493770348161-369560ae357d?fm=jpg&q=60&w=3000&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxzZWFyY2h8Mnx8Zm9vZCUyMHJlY2lwZXN8ZW58MHx8MHx8fDA%3D');
+            background-size: cover;
+            background-position: center;
+            background-attachment: fixed;
+            min-height: 100vh;
+        }
+
+        .overlay {
+            background: rgba(0, 0, 0, 0.4);
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            z-index: 0;
+        }
+
+        .top-bar {
+            height: 80px;
+            width: 100%;
+            background-color: #4A4A4A;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
+            position: fixed;
+            top: 0;
+            z-index: 100;
+            border-bottom: 2px solid #9B8579;
+        }
+
+        .heading {
+            font-size: 36px;
+            color: #F5F5F5;
+            font-weight: 600;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.2);
+            display: flex;
+            align-items: center;
+            gap: 20px;
+        }
+
+        .main-content {
+            max-width: 800px;
+            margin: 130px auto 0 auto;
+            padding: 40px;
+            background: rgba(255, 255, 255, 0.92);
+            border-radius: 20px;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.08);
+            position: relative;
+            top: 70px;
+            animation: fadeIn 0.7s;
+        }
+
+        .recipe-title {
+            color: #4A4A4A;
+            font-size: 32px;
+            font-weight: 600;
+            margin-bottom: 30px;
+            text-align: center;
+            letter-spacing: 0.5px;
+            border-bottom: 2px solid #9B8579;
+            padding-bottom: 15px;
+        }
+
+        .recipe-info {
+            color: #4A4A4A;
+            font-size: 16px;
+            margin-bottom: 30px;
+            line-height: 1.6;
+            background-color: #F8F8F8;
+            padding: 25px;
+            border-radius: 15px;
+            border: 1px solid #E8E8E8;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05);
+        }
+
+        .ingredients-list {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+            text-align: left;
+        }
+
+        .ingredients-list li {
+            color: #4A4A4A;
+            padding: 15px 20px;
+            margin-bottom: 12px;
+            background-color: #FFFFFF;
+            border-radius: 10px;
+            border: 1px solid #E8E8E8;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.03);
+        }
+
+        .ingredients-list li i {
+            color: #9B8579;
+            font-size: 14px;
+        }
+
+        .ingredients-list li:hover {
+            background-color: #9B8579;
+            transform: translateX(8px);
+            color: #FFFFFF;
+            box-shadow: 0 4px 15px rgba(155, 133, 121, 0.2);
+            border-color: #9B8579;
+        }
+
+        .ingredients-list li:hover i {
+            color: #FFFFFF;
+        }
+
+        .back-btn {
+            position: fixed;
+            top: 25px;
+            left: 100px;
+            padding: 10px 20px;
+            background-color: #9B8579;
+            color: #FFFFFF;
+            border: none;
+            border-radius: 10px;
+            font-size: 14px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            z-index: 1001;
+            text-decoration: none;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            box-shadow: 0 4px 15px rgba(155, 133, 121, 0.2);
+        }
+
+        .back-btn:hover {
+            background-color: #8B7569;
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(155, 133, 121, 0.3);
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+    </style>
+</head>
+<body>
+    <div class="overlay"></div>
+
+    <div class="top-bar">
+        <h1 class="heading">
+            <i class="fas fa-utensils"></i>
+            Recipe Details
+            <i class="fas fa-utensils"></i>
+        </h1>
+    </div>
+
+    <a href="recipe.html" class="back-btn">
+        <i class="fas fa-arrow-left"></i>
+        Back to Recipes
+    </a>
+
+    <div class="recipe-container">
+        <h2 class="recipe-title" id="recipeName">Loading...</h2>
+        
+        <div class="recipe-section">
+            <h3 class="section-title">Ingredients</h3>
+            <ul class="ingredients-list" id="ingredientsList">
+                <!-- Ingredients will be populated here -->
+            </ul>
+        </div>
+    </div>
+
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
+        import { getFirestore, doc, getDoc } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+
+        const firebaseConfig = {
+            apiKey: "AIzaSyAYWtxU8MhK1BKgwrRViZ5GM9RyvVtAOfc",
+            authDomain: "recipe-finder-sign-in.firebaseapp.com",
+            projectId: "recipe-finder-sign-in",
+            storageBucket: "recipe-finder-sign-in.firebasestorage.app",
+            messagingSenderId: "883935562264",
+            appId: "1:883935562264:web:627cabc25e42c13f0ed16d",
+            measurementId: "G-G5YCPWNZDQ"
+        };
+
+        const app = initializeApp(firebaseConfig);
+        const db = getFirestore(app);
+
+        // Get recipe ID from URL
+        const urlParams = new URLSearchParams(window.location.search);
+        const recipeId = urlParams.get('id');
+
+        if (recipeId) {
+            const recipeRef = doc(db, "Recipes", recipeId);
+            const recipeSnap = await getDoc(recipeRef);
+
+            if (recipeSnap.exists()) {
+                const recipeData = recipeSnap.data();
+                
+                // Update recipe name with capitalized first letter
+                document.getElementById('recipeName').textContent = recipeData.name.charAt(0).toUpperCase() + recipeData.name.slice(1);
+
+                // Update ingredients
+                const ingredientsList = document.getElementById('ingredientsList');
+                if (recipeData.ingredients && Array.isArray(recipeData.ingredients)) {
+                    recipeData.ingredients.forEach(ingredient => {
+                        const li = document.createElement('li');
+                        li.innerHTML = `<i class="fas fa-check"></i> ${ingredient}`;
+                        ingredientsList.appendChild(li);
+                    });
+                } else {
+                    ingredientsList.innerHTML = '<li>No ingredients available</li>';
+                }
+            } else {
+                document.getElementById('recipeName').textContent = 'Recipe not found';
+            }
+        } else {
+            document.getElementById('recipeName').textContent = 'No recipe selected';
+        }
+    </script>
+</body>
+</html> 

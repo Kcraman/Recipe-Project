@@ -20,7 +20,7 @@
     }
 
     .overlay {
-        background: rgba(0, 0, 0, 0.6);
+        background: rgba(0, 0, 0, 0.4);
         position: fixed;
         top: 0;
         left: 0;
@@ -32,22 +32,21 @@
     .top-bar {
         height: 80px;
         width: 100%;
-        background-color: rgb(41, 39, 39);
-        opacity: 75%;
+        background-color: #4A4A4A;
         display: flex;
         align-items: center;
         justify-content: center;
-        box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2);
+        box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
         position: fixed;
         top: 0;
         z-index: 100;
-        border-bottom: 3px solid #F5E6C8;
+        border-bottom: 2px solid #9B8579;
     }
 
     .heading {
         font-size: 36px;
-        color: #F5E6C8;
-        font-weight: bold;
+        color: #F5F5F5;
+        font-weight: 600;
         text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.2);
         display: flex;
         align-items: center;
@@ -68,13 +67,13 @@
     .heading-text {
         position: relative;
         transition: all 0.3s ease;
-        color: #F5E6C8;
+        color: #F5F5F5;
         text-decoration: none;
     }
 
     .heading-text:hover {
         transform: scale(1.05);
-        color: #fff;
+        color: #D4C4B7;
     }
 
     .menu-icon {
@@ -145,74 +144,76 @@
     }
 
     .main-content {
-        position: relative;
-        top: 120px;
-        max-width: 1400px;
-        margin: 0 auto;
+        max-width: 800px;
+        margin: 130px auto 0 auto;
         padding: 40px;
-        z-index: 2;
-        display: flex;
-        gap: 30px;
+        background: rgba(255, 255, 255, 0.92);
+        border-radius: 20px;
+        box-shadow: 0 8px 32px rgba(0, 0, 0, 0.08);
+        position: relative;
+        top: 70px;
+        animation: fadeIn 0.7s;
     }
 
     .category-nav {
         position: sticky;
         top: 120px;
-        width: 500px;
+        width: 100%;
         display: flex;
         flex-direction: column;
-        gap: 15px;
+        gap: 25px;
         padding: 20px;
-        background-color: rgba(0, 0, 0, 0.6);
-        border-radius: 12px;
-        border: 2px solid #fff;
+        background: transparent;
+        border-radius: 20px;
         height: fit-content;
-        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
     }
 
     .category-section {
-        background-color: rgba(255, 255, 255, 0.1);
-        border-radius: 8px;
-        padding: 12px;
-        margin-bottom: 2px;
-        border: 1px solid rgba(255, 255, 255, 0.2);
+        background-color: #F8F8F8;
+        border-radius: 15px;
+        padding: 25px;
+        margin-bottom: 10px;
+        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05);
+        border: 1px solid #E8E8E8;
     }
 
     .category-header {
-        color: #fff;
-        font-size: 20px;
+        color: #4A4A4A;
+        font-size: 22px;
         font-weight: 600;
-        margin-bottom: 10px;
-        text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.2);
-        letter-spacing: 1px;
+        margin-bottom: 20px;
+        letter-spacing: 0.5px;
+        border-bottom: 2px solid #9B8579;
+        padding-bottom: 10px;
     }
 
     .recipe-list {
         display: flex;
         flex-direction: column;
-        gap: 6px;
+        gap: 12px;
     }
 
     .recipe-name {
-        color: #fff;
-        font-size: 14px;
-        padding: 8px 12px;
-        border-radius: 6px;
+        color: #4A4A4A;
+        font-size: 16px;
+        padding: 14px 20px;
+        border-radius: 10px;
         cursor: pointer;
         transition: all 0.3s ease;
-        background-color: rgba(255, 255, 255, 0.05);
+        background-color: #FFFFFF;
         text-decoration: none;
         display: block;
-        letter-spacing: 0.5px;
-        border: 1px solid rgba(255, 255, 255, 0.1);
+        letter-spacing: 0.3px;
+        border: 1px solid #E8E8E8;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.03);
     }
 
     .recipe-name:hover {
-        background-color: rgba(255, 255, 255, 0.15);
+        background-color: #9B8579;
         transform: translateX(8px);
-        color: #fff;
-        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
-        border-color: rgba(255, 255, 255, 0.3);
+        color: #FFFFFF;
+        box-shadow: 0 4px 15px rgba(155, 133, 121, 0.2);
+        border-color: #9B8579;
     }
 
     .back-btn {
@@ -220,36 +221,34 @@
         top: 25px;
         left: 100px;
         padding: 10px 20px;
-        background-color: rgba(0, 0, 0, 0.6);
-        color: #fff;
-        border: 2px solid #fff;
-        border-radius: 8px;
+        background-color: #9B8579;
+        color: #FFFFFF;
+        border: none;
+        border-radius: 10px;
         font-size: 14px;
-        font-weight: 600;
+        font-weight: 500;
         cursor: pointer;
         transition: all 0.3s ease;
         z-index: 1001;
         text-decoration: none;
         display: flex;
         align-items: center;
-        gap: 6px;
-        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
-        letter-spacing: 0.5px;
+        gap: 8px;
+        box-shadow: 0 4px 15px rgba(155, 133, 121, 0.2);
     }
 
     .back-btn:hover {
-        background-color: rgba(255, 255, 255, 0.15);
+        background-color: #8B7569;
         transform: translateY(-2px);
-        box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
-        color: #fff;
+        box-shadow: 0 6px 20px rgba(155, 133, 121, 0.3);
     }
 
     .main-content h2 {
-        color: #fff;
+        color: #5b4b3a;
         font-size: 32px;
         text-align: center;
         margin-bottom: 25px;
-        text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.2);
+        text-shadow: 2px 2px 4px rgba(91, 75, 58, 0.2);
         letter-spacing: 1px;
     }
 
@@ -276,6 +275,11 @@
     .user-icon:hover {
         transform: scale(1.05);
         color: #fff;
+    }
+
+    @keyframes fadeIn {
+        from { opacity: 0; transform: translateY(20px); }
+        to { opacity: 1; transform: translateY(0); }
     }
 </style>
 </head>
@@ -412,7 +416,7 @@
                     <div class="category-header">${letter}</div>
                     <div class="recipe-list">
                         ${groupedRecipes[letter].map(recipe => `
-                            <a href="recipesearch.html?id=${recipe.id}" class="recipe-name">
+                            <a href="recipe-details.html?id=${recipe.id}" class="recipe-name">
                                 ${recipe.name}
                             </a>
                         `).join('')}
