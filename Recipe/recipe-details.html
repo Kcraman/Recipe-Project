@@ -277,30 +277,30 @@
         }
 
         .back-btn {
-            position: fixed;
-            top: 25px;
-            left: 100px;
+            position: absolute;
+            top: 20px;
+            left: 20px;
             padding: 10px 20px;
-            background-color: #5B4B3A;
-            color: #FFFFFF;
+            color: #5B4B3A;
             border: none;
-            border-radius: 8px;
-            font-size: 14px;
+            border-radius: 10px;
+            font-size: 16px;
             font-weight: 500;
             cursor: pointer;
             transition: all 0.3s ease;
-            z-index: 1001;
             text-decoration: none;
             display: flex;
             align-items: center;
             gap: 8px;
-            box-shadow: 0 4px 15px rgba(91, 75, 58, 0.2);
+        }
+
+        .back-btn span {
+            text-decoration: underline;
         }
 
         .back-btn:hover {
-            background-color: #745d47;
-            transform: translateY(-2px);
-            box-shadow: 0 6px 20px rgba(91, 75, 58, 0.3);
+            transform: translateX(-5px);
+            color: #745d47;
         }
     </style>
 </head>
@@ -339,12 +339,11 @@
         </div>
     </div>
 
-    <a href="javascript:history.back()" class="back-btn">
-        <i class="fas fa-arrow-left"></i>
-        Back
-    </a>
-
     <div class="recipe-card" id="recipe-details">
+        <a href="javascript:history.back()" class="back-btn">
+            <i class="fas fa-arrow-left"></i>
+            <span>Back</span>
+        </a>
         <h2 id="recipeName">Loading...</h2>
         
         <div class="recipe-section">
@@ -364,7 +363,8 @@
 
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
-        import { getFirestore, doc, getDoc } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+        import { getFirestore, doc, getDoc, collection, query, where, getDocs } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+        import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
 
         const firebaseConfig = {
             apiKey: "AIzaSyAYWtxU8MhK1BKgwrRViZ5GM9RyvVtAOfc",
@@ -378,6 +378,27 @@
 
         const app = initializeApp(firebaseConfig);
         const db = getFirestore(app);
+        const auth = getAuth(app);
+
+        // Check authentication state
+        onAuthStateChanged(auth, async (user) => {
+            const userIcon = document.getElementById('userIcon');
+            const userText = document.getElementById('userText');
+
+            if (user) {
+                // User is signed in
+                userIcon.href = "User.html";
+                const userDoc = await getDocs(query(collection(db, "users"), where("email", "==", user.email)));
+                if (!userDoc.empty) {
+                    const userData = userDoc.docs[0].data();
+                    userText.textContent = userData.firstname;
+                }
+            } else {
+                // User is signed out
+                userIcon.href = "Login.html";
+                userText.textContent = "Login";
+            }
+        });
 
         // Get recipe ID from URL
         const urlParams = new URLSearchParams(window.location.search);

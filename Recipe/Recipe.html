@@ -32,21 +32,22 @@
     .top-bar {
         height: 80px;
         width: 100%;
-        background-color: #4A4A4A;
+        background-color: rgb(41, 39, 39);
+        opacity: 75%;
         display: flex;
         align-items: center;
         justify-content: center;
-        box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
+        box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2);
         position: fixed;
         top: 0;
         z-index: 100;
-        border-bottom: 2px solid #9B8579;
+        border-bottom: 3px solid #F5E6C8;
     }
 
     .heading {
         font-size: 36px;
-        color: #F5F5F5;
-        font-weight: 600;
+        color: #F5E6C8;
+        font-weight: bold;
         text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.2);
         display: flex;
         align-items: center;
@@ -67,13 +68,13 @@
     .heading-text {
         position: relative;
         transition: all 0.3s ease;
-        color: #F5F5F5;
+        color: #F5E6C8;
         text-decoration: none;
     }
 
     .heading-text:hover {
         transform: scale(1.05);
-        color: #D4C4B7;
+        color: #fff;
     }
 
     .menu-icon {
@@ -217,30 +218,26 @@
     }
 
     .back-btn {
-        position: fixed;
-        top: 25px;
-        left: 100px;
+        position: absolute;
+        top: 20px;
+        left: 20px;
         padding: 10px 20px;
-        background-color: #9B8579;
-        color: #FFFFFF;
+        color: #5B4B3A;
         border: none;
         border-radius: 10px;
-        font-size: 14px;
+        font-size: 16px;
         font-weight: 500;
         cursor: pointer;
         transition: all 0.3s ease;
-        z-index: 1001;
         text-decoration: none;
         display: flex;
         align-items: center;
         gap: 8px;
-        box-shadow: 0 4px 15px rgba(155, 133, 121, 0.2);
     }
 
     .back-btn:hover {
-        background-color: #8B7569;
-        transform: translateY(-2px);
-        box-shadow: 0 6px 20px rgba(155, 133, 121, 0.3);
+        transform: translateX(-5px);
+        color: #745d47;
     }
 
     .main-content h2 {
@@ -303,11 +300,6 @@
     <a href="#" class="user-icon" id="userIcon">
         <i class="fas fa-user"></i>
         <span id="userText">Login</span>
-    </a>
-
-    <a href="home.html" class="back-btn">
-        <i class="fas fa-arrow-left"></i>
-        Back
     </a>
 
     <div class="sidebar" id="sidebar">
