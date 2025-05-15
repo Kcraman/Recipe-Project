@@ -133,6 +133,12 @@
       background-color: rgba(255, 255, 255, 0.1);
       transform: translateX(5px);
     }
+    .sidebar a.active {
+      background-color: rgba(255, 255, 255, 0.2);
+      border-left: 4px solid #F5E6C8;
+      padding-left: 15px;
+      font-weight: 500;
+    }
     .sidebar .bottom-link {
       margin-bottom: 40px;
     }
@@ -246,6 +252,58 @@
     .login-link {
       display: none;
     }
+    .error-message {
+      display: none;
+      background-color: #fff3f3;
+      border-left: 4px solid #ff6b6b;
+      color: #d63031;
+      padding: 15px;
+      margin: 20px 0;
+      border-radius: 8px;
+      font-size: 14px;
+      animation: slideIn 0.3s ease-out;
+      box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+    }
+    .error-message i {
+      margin-right: 8px;
+      color: #ff6b6b;
+    }
+    @keyframes slideIn {
+      from {
+        opacity: 0;
+        transform: translateY(-10px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+    .add-recipe-btn {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 10px;
+      margin: 30px auto;
+      padding: 14px 35px;
+      background-color: #5B4B3A;
+      color: white;
+      border: none;
+      border-radius: 8px;
+      font-size: 18px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      text-decoration: none;
+      max-width: 200px;
+    }
+    .add-recipe-btn i {
+      font-size: 20px;
+    }
+    .add-recipe-btn:hover {
+      background-color: #745d47;
+      transform: translateY(-2px);
+      box-shadow: 0 5px 15px rgba(91, 75, 58, 0.2);
+    }
   </style>
 </head>
 <body>
@@ -270,11 +328,12 @@
   </a>
   <div class="sidebar" id="sidebar">
     <div>
-      <a href="home.html" class="menu-link">Home</a>
-      <a href="recipe.html" class="menu-link">Recipes</a>
-      <a href="#" class="menu-link">Search Ingredients</a>
-      <a href="#" class="menu-link">Saved</a>
-      <a href="#" class="menu-link">Favourites</a>
+      <a href="home.html" class="active">Home</a>
+      <a href="recipe.html">Recipes</a>
+      <a href="#">Search Ingredients</a>
+      <a href="#">Saved</a>
+      <a href="#">Favourites</a>
+      <a href="createrecipe.html">Add Recipe</a>
     </div>
     <div class="bottom-link">
       <a href="#">User</a>
@@ -283,6 +342,7 @@
   <div class="main-content">
     <h2>Welcome to Recipe Finder</h2>
     <p>Relax, explore, and find your next favorite meal or ingredient.<br><br>Search by recipe name or ingredient below!</p>
+    <div id="errorContainer" class="error-message"></div>
     <div class="search-box">
       <input type="text" id="inputbox1" placeholder="Search Recipes" />
       <button id="search-btn">Search</button>
@@ -291,6 +351,10 @@
       <input type="text" placeholder="Generate Recipes" />
       <button type="button">Find Recipes</button>
     </div>
+    <a href="createrecipe.html" class="add-recipe-btn">
+      <i class="fas fa-plus"></i>
+      Add Recipe
+    </a>
   </div>
   <script>
     function toggleMenu() {
@@ -356,15 +420,25 @@
 
     document.querySelector("#search-btn").addEventListener("click", async () => {
       const searchValue = document.querySelector("#inputbox1").value.trim().toLowerCase();
-      const q = query(collection(db, "Recipes"), where("name", "==", searchValue));
-      const recipe = await getDocs(q);
-      if (recipe.empty) {
-        alert("Recipe not found!");
-      } else {
-        recipe.forEach((doc) => {
-          const data = doc.data();
+      const recipesRef = collection(db, "Recipes");
+      const recipesSnapshot = await getDocs(recipesRef);
+      
+      let found = false;
+      recipesSnapshot.forEach((doc) => {
+        const recipeName = doc.data().name.toLowerCase();
+        if (recipeName.includes(searchValue)) {
+          found = true;
           window.location.href = `recipesearch.html?id=${doc.id}`;
-        });
+        }
+      });
+      
+      if (!found) {
+        const errorContainer = document.getElementById('errorContainer');
+        errorContainer.innerHTML = `<i class="fas fa-exclamation-circle"></i> Recipe "${searchValue}" not found.`;
+        errorContainer.style.display = 'block';
+        setTimeout(() => {
+          errorContainer.style.display = 'none';
+        }, 5000);
       }
     });
   </script>

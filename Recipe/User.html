@@ -17,56 +17,8 @@
             background-position: center;
             background-attachment: fixed;
             min-height: 100vh;
-            display: flex;
-            justify-content: center;
-            align-items: center;
         }
 
-        .greeting {
-            background-color: rgba(255, 255, 255, 0.95);
-            padding: 40px;
-            border-radius: 15px;
-            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
-            text-align: center;
-            font-size: 32px;
-            color: #3f3428;
-            font-weight: 600;
-        }
-        .greeting-text {
-            margin-bottom: 20px;
-        }
-        .logout-btn {
-            margin-top: 20px;
-            padding: 12px 30px;
-            background-color: #5B4B3A;
-            color: white;
-            border: none;
-            border-radius: 8px;
-            font-size: 16px;
-            font-weight: 600;
-            cursor: pointer;
-            transition: all 0.3s ease;
-        }
-        .logout-btn:hover {
-            background-color: #745d47;
-            transform: translateY(-2px);
-            box-shadow: 0 5px 15px rgba(91, 75, 58, 0.2);
-        }
-        .cancel-btn {
-            margin-top: 20px;
-            padding: 12px 30px;
-            background-color: #5B4B3A;
-            color: white;
-            border: none;
-            border-radius: 8px;
-            font-size: 16px;
-            font-weight: 600;
-            cursor: pointer;
-            transition: all 0.3s ease;
-        }
-        .cancel-btn:hover {
-            background-color: #745d47;
-        }
         .top-bar {
             height: 80px;
             width: 100%;
@@ -81,6 +33,67 @@
             z-index: 100;
             border-bottom: 3px solid #F5E6C8;
         }
+
+        .heading {
+            font-size: 36px;
+            color: #F5E6C8;
+            font-weight: bold;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.2);
+            display: flex;
+            align-items: center;
+            gap: 20px;
+        }
+
+        .heading i {
+            font-size: 28px;
+            opacity: 0.9;
+            transition: all 0.3s ease;
+        }
+
+        .heading:hover i {
+            transform: scale(1.1);
+            opacity: 1;
+        }
+
+        .heading-text {
+            position: relative;
+            transition: all 0.3s ease;
+            color: #F5E6C8;
+            text-decoration: none;
+        }
+
+        .heading-text:hover {
+            transform: scale(1.05);
+            color: #fff;
+        }
+
+        .menu-icon {
+            position: fixed;
+            top: 15px;
+            left: 25px;
+            cursor: pointer;
+            z-index: 1001;
+            transition: all 0.3s ease;
+            padding: 10px;
+            border-radius: 50%;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+        }
+
+        .menu-icon:hover {
+            transform: scale(1.1);
+            background: rgba(255, 255, 255, 0.25);
+        }
+
+        .menu-icon div {
+            width: 30px;
+            height: 3px;
+            background-color: #F5E6C8;
+            margin: 6px 0;
+            transition: 0.3s;
+            border-radius: 3px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+        }
+
         .sidebar {
             position: fixed;
             left: -300px;
@@ -96,61 +109,11 @@
             z-index: 1000;
             backdrop-filter: blur(10px);
         }
-        .heading {
-            font-size: 36px;
-            color: #F5E6C8;
-            font-weight: bold;
-            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.2);
-            display: flex;
-            align-items: center;
-            gap: 20px;
-        }
-        .heading i {
-            font-size: 28px;
-            opacity: 0.9;
-            transition: all 0.3s ease;
-        }
-        .heading:hover i {
-            transform: scale(1.1);
-            opacity: 1;
-        }
-        .heading-text {
-            position: relative;
-            transition: all 0.3s ease;
-            color: #F5E6C8;
-            text-decoration: none;
-        }
-        .heading-text:hover {
-            transform: scale(1.05);
-            color: #fff;
-        }
-        .menu-icon {
-            position: fixed;
-            top: 15px;
-            left: 25px;
-            cursor: pointer;
-            z-index: 1001;
-            transition: all 0.3s ease;
-            padding: 10px;
-            border-radius: 50%;
-            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
-        }
-        .menu-icon:hover {
-            transform: scale(1.1);
-            background: rgba(255, 255, 255, 0.25);
-        }
-        .menu-icon div {
-            width: 30px;
-            height: 3px;
-            background-color: #F5E6C8;
-            margin: 6px 0;
-            transition: 0.3s;
-            border-radius: 3px;
-            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
-        }
+
         .sidebar.active {
             left: 0;
         }
+
         .sidebar a {
             color: white;
             text-decoration: none;
@@ -161,12 +124,162 @@
             border-radius: 5px;
             transition: all 0.3s ease;
         }
+
         .sidebar a:hover {
             background-color: rgba(255, 255, 255, 0.1);
             transform: translateX(5px);
         }
+
         .sidebar .bottom-link {
             margin-bottom: 40px;
+        }
+
+        .profile-container {
+            max-width: 1000px;
+            margin: 120px auto 40px;
+            padding: 20px;
+        }
+
+        .recipes-container {
+            display: flex;
+            gap: 20px;
+            justify-content: center;
+        }
+
+        .profile-header {
+            background-color: rgba(255, 255, 255, 0.95);
+            border-radius: 15px;
+            padding: 30px;
+            margin-bottom: 20px;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+            display: flex;
+            align-items: center;
+            gap: 30px;
+        }
+
+        .profile-avatar {
+            width: 120px;
+            height: 120px;
+            background-color: #5B4B3A;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 48px;
+        }
+
+        .profile-info {
+            flex-grow: 1;
+        }
+
+        .profile-name {
+            font-size: 32px;
+            color: #3f3428;
+            margin: 0 0 10px 0;
+        }
+
+        .profile-email {
+            font-size: 18px;
+            color: #666;
+            margin: 0;
+        }
+
+        .profile-section {
+            background-color: rgba(255, 255, 255, 0.95);
+            border-radius: 15px;
+            padding: 20px;
+            margin-bottom: 20px;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+            max-width: 320px;
+            flex: 1;
+        }
+
+        .recipe-grid {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            padding: 10px;
+            max-width: 300px;
+        }
+
+        .recipe-icon {
+            width: 40px;
+            height: 40px;
+            background-color: white;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+            transition: all 0.3s ease;
+            cursor: pointer;
+        }
+
+        .recipe-icon:hover {
+            transform: scale(1.1);
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+        }
+
+        .recipe-icon i {
+            font-size: 20px;
+            color: #5B4B3A;
+        }
+
+        .recipe-icon:hover i {
+            color: #745d47;
+        }
+
+        .section-title {
+            font-size: 20px;
+            color: #3f3428;
+            margin: 0 0 15px 0;
+            padding-bottom: 8px;
+            border-bottom: 2px solid #5B4B3A;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .section-title i {
+            color: #5B4B3A;
+            font-size: 18px;
+        }
+
+        .action-buttons {
+            display: flex;
+            gap: 15px;
+            margin-top: 20px;
+        }
+
+        .btn {
+            padding: 12px 25px;
+            border: none;
+            border-radius: 8px;
+            font-size: 16px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .btn-primary {
+            background-color: #5B4B3A;
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background-color: #745d47;
+            transform: translateY(-2px);
+        }
+
+        .btn-secondary {
+            background-color: #e0e0e0;
+            color: #333;
+        }
+
+        .btn-secondary:hover {
+            background-color: #d0d0d0;
+            transform: translateY(-2px);
         }
     </style>
 </head>
@@ -192,17 +305,47 @@
             <a href="#">Search Ingredients</a>
             <a href="#">Saved</a>
             <a href="#">Favourites</a>
+            <a href="createrecipe.html">Add Recipe</a>
         </div>
         <div class="bottom-link">
             <a href="User.html">User</a>
         </div>
     </div>
 
-    <div class="greeting">
-        <div class="greeting-text" id="greeting">Loading...</div>
-        <div class="button-container">
-            <button class="logout-btn" onclick="logout()">Logout</button>
-            <button class="cancel-btn" onclick="goBack()">Cancel</button>
+    <div class="profile-container">
+        <div class="profile-header">
+            <div class="profile-avatar">
+                <i class="fas fa-user"></i>
+            </div>
+            <div class="profile-info">
+                <h1 class="profile-name" id="userName">Loading...</h1>
+                <p class="profile-email" id="userEmail">Loading...</p>
+            </div>
+            <div class="action-buttons">
+                <button class="btn btn-secondary" onclick="logout()">Logout</button>
+            </div>
+        </div>
+
+        <div class="recipes-container">
+            <div class="profile-section">
+                <h2 class="section-title">
+                    <i class="fas fa-bookmark"></i>
+                    Saved Recipes
+                </h2>
+                <div class="recipe-grid" id="savedRecipesGrid">
+                    <!-- Saved recipes will be loaded here -->
+                </div>
+            </div>
+
+            <div class="profile-section">
+                <h2 class="section-title">
+                    <i class="fas fa-heart"></i>
+                    Favorite Recipes
+                </h2>
+                <div class="recipe-grid" id="favoriteRecipesGrid">
+                    <!-- Favorite recipes will be loaded here -->
+                </div>
+            </div>
         </div>
     </div>
 
@@ -221,12 +364,10 @@
             });
         });
 
-        // Add click event listener to close sidebar when clicking outside
         document.addEventListener('click', function(event) {
             const sidebar = document.getElementById('sidebar');
             const menuIcon = document.querySelector('.menu-icon');
             
-            // Check if sidebar is active and click is outside both sidebar and menu icon
             if (sidebar.classList.contains('active') && 
                 !sidebar.contains(event.target) && 
                 !menuIcon.contains(event.target)) {
@@ -254,29 +395,63 @@
         const db = getFirestore(app);
         const auth = getAuth(app);
 
-        // Make logout function available globally
-        window.logout = async function() {
-            try {
-                await signOut(auth);
-                // Store the message in localStorage before redirecting
-                localStorage.setItem('logoutMessage', 'You have been successfully logged out. Please login again to continue.');
-                window.location.href = "Login.html";
-            } catch (error) {
-                alert("Error signing out: " + error.message);
-            }
-        };
-
+        // Check authentication state
         onAuthStateChanged(auth, async (user) => {
             if (user) {
+                // User is signed in
                 const userDoc = await getDocs(query(collection(db, "users"), where("email", "==", user.email)));
                 if (!userDoc.empty) {
                     const userData = userDoc.docs[0].data();
-                    document.getElementById('greeting').textContent = `Hi, ${userData.firstname}`;
+                    document.getElementById('userName').textContent = `${userData.firstname} ${userData.lastname}`;
+                    document.getElementById('userEmail').textContent = user.email;
+                    
+                    // Load user's saved recipes
+                    const savedRecipesQuery = await getDocs(query(collection(db, "savedRecipes"), where("userId", "==", user.uid)));
+                    const savedRecipes = savedRecipesQuery.docs.map(doc => doc.data());
+                    document.getElementById('savedRecipes').textContent = savedRecipes.length;
+                    
+                    // Load user's favorite recipes
+                    const favoriteRecipesQuery = await getDocs(query(collection(db, "favoriteRecipes"), where("userId", "==", user.uid)));
+                    const favoriteRecipes = favoriteRecipesQuery.docs.map(doc => doc.data());
+                    document.getElementById('favoriteRecipes').textContent = favoriteRecipes.length;
+                    
+                    // Load saved recipes grid
+                    const savedRecipesGrid = document.getElementById('savedRecipesGrid');
+                    savedRecipes.forEach(recipe => {
+                        const recipeCard = createRecipeCard(recipe);
+                        savedRecipesGrid.appendChild(recipeCard);
+                    });
+                    
+                    // Load favorite recipes grid
+                    const favoriteRecipesGrid = document.getElementById('favoriteRecipesGrid');
+                    favoriteRecipes.forEach(recipe => {
+                        const recipeCard = createRecipeCard(recipe);
+                        favoriteRecipesGrid.appendChild(recipeCard);
+                    });
                 }
             } else {
+                // User is signed out, redirect to login
                 window.location.href = "Login.html";
             }
         });
+
+        function createRecipeCard(recipe) {
+            const card = document.createElement('div');
+            card.className = 'recipe-icon';
+            card.innerHTML = `<i class="fas fa-utensils"></i>`;
+            card.title = recipe.name; // Add tooltip with recipe name
+            card.onclick = () => window.location.href = `recipe-details.html?id=${recipe.id}`;
+            return card;
+        }
+
+        window.logout = async function() {
+            try {
+                await signOut(auth);
+                window.location.href = "Login.html";
+            } catch (error) {
+                console.error("Error signing out:", error);
+            }
+        };
     </script>
 </body>
 </html>
