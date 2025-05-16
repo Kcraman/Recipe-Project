@@ -216,6 +216,10 @@
             color: #5B4B3A;
             font-size: 15px;
             font-weight: 500;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin-bottom: 10px;
         }
 
         .recipe-card:hover {
@@ -240,13 +244,31 @@
             color: #5B4B3A;
         }
 
+        .recipe-info {
+            flex-grow: 1;
+        }
+
         .recipe-name {
             font-size: 15px;
             font-weight: 500;
-            flex-grow: 1;
-            white-space: nowrap;
-            overflow: hidden;
-            text-overflow: ellipsis;
+            margin-bottom: 5px;
+        }
+
+        .recipe-details {
+            font-size: 13px;
+            color: #666;
+            display: flex;
+            gap: 15px;
+        }
+
+        .recipe-details span {
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+
+        .recipe-details i {
+            color: #bb6736;
         }
 
         .section-title {
@@ -349,14 +371,14 @@
     <div class="sidebar" id="sidebar">
         <div>
             <a href="home.html">Home</a>
-            <a href="recipe.html">Recipes</a>
+            <a href="Recipe.html">Recipes</a>
             <a href="#">Search Ingredients</a>
-            <a href="#">Saved</a>
+            <a href="saved.html">Saved</a>
             <a href="#">Favourites</a>
             <a href="createrecipe.html">Add Recipe</a>
         </div>
         <div class="bottom-link">
-            <a href="User.html">User</a>
+            <a href="User.html" class="active">User</a>
         </div>
     </div>
 
@@ -469,13 +491,28 @@
                     document.getElementById('userName').textContent = `${userData.firstname} ${userData.lastname}`;
                     document.getElementById('userEmail').textContent = user.email;
                     
-                    // Load user's saved recipes
-                    const savedRecipesQuery = await getDocs(query(collection(db, "savedRecipes"), where("userId", "==", user.uid)));
-                    const savedRecipes = savedRecipesQuery.docs.map(doc => doc.data());
+                    // Load saved recipes from localStorage
+                    const savedRecipes = JSON.parse(localStorage.getItem('savedRecipes')) || [];
+                    const savedRecipesGrid = document.getElementById('savedRecipesGrid');
                     
-                    // Load user's favorite recipes
-                    const favoriteRecipesQuery = await getDocs(query(collection(db, "favoriteRecipes"), where("userId", "==", user.uid)));
-                    const favoriteRecipes = favoriteRecipesQuery.docs.map(doc => doc.data());
+                    if (savedRecipes.length === 0) {
+                        savedRecipesGrid.innerHTML = '<p style="color: #666; text-align: center;">No saved recipes yet</p>';
+                    } else {
+                        savedRecipesGrid.innerHTML = savedRecipes.map(recipe => `
+                            <a href="recipe-details.html?id=${recipe.id}" class="recipe-card">
+                                <div class="recipe-icon">
+                                    <i class="fas fa-utensils"></i>
+                                </div>
+                                <div class="recipe-info">
+                                    <div class="recipe-name">${recipe.title}</div>
+                                    <div class="recipe-details">
+                                        <span><i class="fas fa-clock"></i> ${recipe.cookingTime}</span>
+                                        <span><i class="fas fa-fire"></i> ${recipe.calories}</span>
+                                    </div>
+                                </div>
+                            </a>
+                        `).join('');
+                    }
                     
                     // Load user's added recipes
                     const addedRecipesQuery = await getDocs(query(collection(db, "Recipes"), where("createdBy", "==", `${userData.firstname} ${userData.lastname}`)));
@@ -484,40 +521,28 @@
                         ...doc.data()
                     }));
                     
-                    // Load saved recipes grid
-                    const savedRecipesGrid = document.getElementById('savedRecipesGrid');
-                    savedRecipes.forEach(recipe => {
-                        const recipeCard = createRecipeCard(recipe);
-                        savedRecipesGrid.appendChild(recipeCard);
-                    });
-                    
-                    // Load favorite recipes grid
-                    const favoriteRecipesGrid = document.getElementById('favoriteRecipesGrid');
-                    favoriteRecipes.forEach(recipe => {
-                        const recipeCard = createRecipeCard(recipe);
-                        favoriteRecipesGrid.appendChild(recipeCard);
-                    });
-
                     // Load added recipes grid
                     const addedRecipesGrid = document.getElementById('addedRecipesGrid');
-                    addedRecipes.forEach(recipe => {
-                        const recipeCard = createRecipeCard(recipe);
-                        addedRecipesGrid.appendChild(recipeCard);
-                    });
+                    if (addedRecipes.length === 0) {
+                        addedRecipesGrid.innerHTML = '<p style="color: #666; text-align: center;">No recipes added yet</p>';
+                    } else {
+                        addedRecipesGrid.innerHTML = addedRecipes.map(recipe => `
+                            <a href="recipe-details.html?id=${recipe.id}" class="recipe-card">
+                                <div class="recipe-icon">
+                                    <i class="fas fa-utensils"></i>
+                                </div>
+                                <div class="recipe-info">
+                                    <div class="recipe-name">${recipe.name}</div>
+                                </div>
+                            </a>
+                        `).join('');
+                    }
                 }
             } else {
                 // User is signed out, redirect to login
                 window.location.href = "Login.html";
             }
         });
-
-        function createRecipeCard(recipe) {
-            const card = document.createElement('a');
-            card.className = 'recipe-card';
-            card.href = `recipe-details.html?id=${recipe.id}`;
-            card.textContent = recipe.name;
-            return card;
-        }
 
         window.logout = async function() {
             try {

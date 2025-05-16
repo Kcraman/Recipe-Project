@@ -280,10 +280,10 @@
             position: absolute;
             top: 20px;
             left: 20px;
-            padding: 10px 20px;
+            padding: 12px 25px;
             color: #5B4B3A;
             border: none;
-            border-radius: 10px;
+            border-radius: 8px;
             font-size: 16px;
             font-weight: 500;
             cursor: pointer;
@@ -292,15 +292,47 @@
             display: flex;
             align-items: center;
             gap: 8px;
-        }
-
-        .back-btn span {
-            text-decoration: underline;
+            background-color: #f8f5f0;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
         }
 
         .back-btn:hover {
             transform: translateX(-5px);
             color: #745d47;
+            box-shadow: 0 4px 15px rgba(91, 75, 58, 0.2);
+        }
+
+        .save-recipe-btn {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            background-color: #5B4B3A;
+            color: white;
+            border: none;
+            padding: 12px 25px;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-weight: 500;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+        }
+
+        .save-recipe-btn:hover {
+            background-color: #745d47;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 15px rgba(91, 75, 58, 0.3);
+        }
+
+        .save-recipe-btn.saved {
+            background-color: #28a745;
+        }
+
+        .save-recipe-btn.saved:hover {
+            background-color: #218838;
+            box-shadow: 0 4px 15px rgba(40, 167, 69, 0.3);
         }
     </style>
 </head>
@@ -329,14 +361,14 @@
     <div class="sidebar" id="sidebar">
         <div>
             <a href="home.html">Home</a>
-            <a href="recipe.html">Recipes</a>
+            <a href="Recipe.html">Recipes</a>
             <a href="#">Search Ingredients</a>
-            <a href="#">Saved</a>
+            <a href="saved.html">Saved</a>
             <a href="#">Favourites</a>
             <a href="createrecipe.html">Add Recipe</a>
         </div>
         <div class="bottom-link">
-            <a href="#">User</a>
+            <a href="User.html">User</a>
         </div>
     </div>
 
@@ -360,6 +392,11 @@
                 <!-- Instructions will be populated here -->
             </ul>
         </div>
+
+        <button id="saveRecipeBtn" class="save-recipe-btn" onclick="toggleSaveRecipe()">
+            <i class="fas fa-bookmark"></i>
+            <span>Save Recipe</span>
+        </button>
     </div>
 
     <script type="module">
@@ -438,6 +475,16 @@
                 } else {
                     instructionsList.innerHTML = '<li>No instructions available</li>';
                 }
+
+                // Check if recipe is saved and update save button state
+                const savedRecipes = JSON.parse(localStorage.getItem('savedRecipes')) || [];
+                const isSaved = savedRecipes.some(r => r.id === recipeId);
+                const saveBtn = document.getElementById('saveRecipeBtn');
+                
+                if (isSaved) {
+                    saveBtn.classList.add('saved');
+                    saveBtn.innerHTML = '<i class="fas fa-check"></i><span>Saved</span>';
+                }
             } else {
                 document.getElementById('recipeName').textContent = 'Recipe not found';
             }
@@ -462,13 +509,45 @@
             const sidebar = document.getElementById('sidebar');
             const menuIcon = document.querySelector('.menu-icon');
             
-            // Check if sidebar is active and click is outside both sidebar and menu icon
             if (sidebar.classList.contains('active') && 
                 !sidebar.contains(event.target) && 
                 !menuIcon.contains(event.target)) {
                 sidebar.classList.remove('active');
             }
         });
+
+        // Save recipe functionality
+        function toggleSaveRecipe() {
+            const saveBtn = document.getElementById('saveRecipeBtn');
+            const recipeId = new URLSearchParams(window.location.search).get('id');
+            const recipeName = document.getElementById('recipeName').textContent;
+            
+            // Get existing saved recipes
+            let savedRecipes = JSON.parse(localStorage.getItem('savedRecipes')) || [];
+            
+            // Check if recipe is already saved
+            const isSaved = savedRecipes.some(r => r.id === recipeId);
+            
+            if (isSaved) {
+                // Remove from saved recipes
+                savedRecipes = savedRecipes.filter(r => r.id !== recipeId);
+                saveBtn.classList.remove('saved');
+                saveBtn.innerHTML = '<i class="fas fa-bookmark"></i><span>Save Recipe</span>';
+            } else {
+                // Add to saved recipes
+                savedRecipes.push({
+                    id: recipeId,
+                    title: recipeName,
+                    cookingTime: '30 mins', // You can update this with actual cooking time if available
+                    calories: '350 kcal'    // You can update this with actual calories if available
+                });
+                saveBtn.classList.add('saved');
+                saveBtn.innerHTML = '<i class="fas fa-check"></i><span>Saved</span>';
+            }
+            
+            // Update localStorage
+            localStorage.setItem('savedRecipes', JSON.stringify(savedRecipes));
+        }
     </script>
 </body>
 </html> 
