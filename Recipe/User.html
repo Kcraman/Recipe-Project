@@ -217,12 +217,17 @@
             margin-bottom: 10px;
             position: relative;
             cursor: pointer;
+            text-decoration: none;
         }
 
         .recipe-card:hover {
             transform: translateX(5px);
             box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
             background-color: #f8f5f0;
+        }
+
+        .recipe-card, .recipe-card:visited, .recipe-card:active, .recipe-card:hover {
+            text-decoration: none !important;
         }
 
         .recipe-icon {
@@ -655,7 +660,9 @@
                                     <i class="fas fa-utensils"></i>
                                 </div>
                                 <div class="recipe-info">
-                                    <div class="recipe-name">${recipe.title}</div>
+                                    <div class="recipe-name" style="color:#5B4B3A;text-decoration:none;">
+                                        ${recipe.title.charAt(0).toUpperCase() + recipe.title.slice(1)}
+                                    </div>
                                 </div>
                                 <span class="recipe-bookmark" onclick="toggleSaveRecipe(event, '${recipe.id}', '${encodeURIComponent(JSON.stringify(recipe))}')">
                                     <i class='fas fa-bookmark'></i>
@@ -677,12 +684,14 @@
                         addedRecipesGrid.innerHTML = '<p style="color: #666; text-align: center;">No recipes added yet</p>';
                     } else {
                         addedRecipesGrid.innerHTML = addedRecipes.map(recipe => `
-                            <a href="recipe-details.html?id=${recipe.id}" class="recipe-card">
+                            <a href="recipe-details.html?id=${recipe.id}" class="recipe-card" style="text-decoration:none;">
                                 <div class="recipe-icon">
                                     <i class="fas fa-utensils"></i>
                                 </div>
                                 <div class="recipe-info">
-                                    <div class="recipe-name">${recipe.name}</div>
+                                    <div class="recipe-name" style="color:#5B4B3A;text-decoration:none;">
+                                        ${recipe.name.charAt(0).toUpperCase() + recipe.name.slice(1)}
+                                    </div>
                                 </div>
                             </a>
                         `).join('');

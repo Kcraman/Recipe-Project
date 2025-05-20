@@ -192,7 +192,6 @@
       border-color: #5B4B3A;
       outline: none;
       box-shadow: 0 0 0 3px rgba(91, 75, 58, 0.1);
-      background: #f8f5f0;
       color: #5b4b3a;
     }
     .search-box button {
@@ -419,10 +418,27 @@
     });
 
     document.querySelector("#search-btn").addEventListener("click", async () => {
-      const searchValue = document.querySelector("#inputbox1").value.trim().toLowerCase();
+      const inputBox = document.querySelector("#inputbox1");
+      const searchValue = inputBox.value.trim().toLowerCase();
+      if (!searchValue) {
+        inputBox.value = '';
+        inputBox.placeholder = 'Please enter recipes';
+        inputBox.style.borderColor = '#dc3545';
+        inputBox.style.background = '#fff3f3';
+        // Remove previous input event if any
+        inputBox.oninput = null;
+        inputBox.addEventListener('input', function handleInput() {
+          if (inputBox.value.trim() !== '') {
+            inputBox.style.borderColor = '';
+            inputBox.style.background = '';
+            inputBox.placeholder = 'Search Recipes';
+            inputBox.removeEventListener('input', handleInput);
+          }
+        });
+        return;
+      }
       const recipesRef = collection(db, "Recipes");
       const recipesSnapshot = await getDocs(recipesRef);
-      
       let found = false;
       recipesSnapshot.forEach((doc) => {
         const recipeName = doc.data().name.toLowerCase();
@@ -431,7 +447,6 @@
           window.location.href = `recipesearch.html?id=${doc.id}`;
         }
       });
-      
       if (!found) {
         const errorContainer = document.getElementById('errorContainer');
         errorContainer.innerHTML = `<i class="fas fa-exclamation-circle"></i> Recipe "${searchValue}" not found.`;
