@@ -387,7 +387,7 @@
             savedRecipesGrid.innerHTML = savedRecipes.map(recipe => `
                 <div class="recipe-card">
                     <div style="display: flex; align-items: center; justify-content: space-between;">
-                        <h3 style="cursor:pointer;color:#5B4B3A;margin:0;text-decoration:none;" onclick="viewRecipe('${recipe.id}')">${recipe.title.charAt(0).toUpperCase() + recipe.title.slice(1)}</h3>
+                        <h3 style="cursor:pointer;color:#5B4B3A;margin:0;" onclick="viewRecipe('${recipe.id}')">${recipe.title.charAt(0).toUpperCase() + recipe.title.slice(1)}</h3>
                         <button class="remove-saved-btn" style="margin-left: 24px;" onclick="removeSavedRecipe('${recipe.id}')">Remove</button>
                     </div>
                 </div>
