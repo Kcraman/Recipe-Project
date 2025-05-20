@@ -384,10 +384,6 @@
             savedRecipesGrid.innerHTML = savedRecipes.map(recipe => `
                 <div class="recipe-card">
                     <h3>${recipe.title}</h3>
-                    <div class="recipe-info">
-                        <p><i class="fas fa-clock"></i> ${recipe.cookingTime}</p>
-                        <p><i class="fas fa-fire"></i> ${recipe.calories}</p>
-                    </div>
                     <div class="recipe-actions">
                         <button class="view-recipe-btn" onclick="viewRecipe('${recipe.id}')">View Recipe</button>
                         <button class="remove-saved-btn" onclick="removeSavedRecipe('${recipe.id}')">Remove</button>
