@@ -216,6 +216,7 @@
             transition: all 0.3s ease;
             margin-bottom: 10px;
             position: relative;
+            cursor: pointer;
         }
 
         .recipe-card:hover {
@@ -242,6 +243,7 @@
 
         .recipe-info {
             flex-grow: 1;
+            margin-left: 15px;
         }
 
         .recipe-name {
@@ -491,6 +493,13 @@
         .unsave-btn:hover i {
             color: #dc3545;
         }
+
+        .recipe-bookmark {
+            margin-left: 16px;
+            font-size: 20px;
+            color: #bb6736;
+            flex-shrink: 0;
+        }
     </style>
 </head>
 <body>
@@ -542,20 +551,6 @@
                     <div style="display: flex; align-items: center; gap: 10px;">
                         <i class="fas fa-bookmark"></i>
                         <span>Saved Recipes</span>
-                    </div>
-                    <div class="section-actions">
-                        <button id="multiSelectBtn" class="multi-select-btn" onclick="toggleMultiSelectMode()">
-                            <i class="fas fa-check-square"></i>
-                            <span id="multiSelectText">Select Multiple</span>
-                        </button>
-                        <button id="selectAllBtn" class="select-all-btn" onclick="selectAllRecipes()">
-                            <i class="fas fa-check-double"></i>
-                            <span>Select All</span>
-                        </button>
-                        <button id="removeSelectedBtn" class="remove-selected-btn" onclick="removeSelectedRecipes()">
-                            <i class="fas fa-trash-alt"></i>
-                            <span>Remove</span>
-                        </button>
                     </div>
                 </h2>
                 <div class="recipe-grid" id="savedRecipesGrid">
@@ -655,25 +650,17 @@
                         savedRecipesGrid.innerHTML = '<p style="color: #666; text-align: center;">No saved recipes yet</p>';
                     } else {
                         savedRecipesGrid.innerHTML = savedRecipes.map(recipe => `
-                            <div class="recipe-card" data-recipe-id="${recipe.id}" onclick="handleRecipeCardClick(this, event)">
-                                <input type="checkbox" class="recipe-checkbox" onclick="handleCheckboxClick(event)" onchange="toggleRecipeSelection(this)">
-                                <div class="recipe-content" style="display: flex; align-items: center; flex-grow: 1;">
-                                    <div class="recipe-icon">
-                                        <i class="fas fa-utensils"></i>
-                                    </div>
-                                    <div class="recipe-info">
-                                        <div class="recipe-name">${recipe.title}</div>
-                                    </div>
+                            <a href="recipe-details.html?id=${recipe.id}" class="recipe-card">
+                                <div class="recipe-icon">
+                                    <i class="fas fa-utensils"></i>
                                 </div>
-                                <div class="recipe-actions">
-                                    <a href="recipe-details.html?id=${recipe.id}" class="view-btn">
-                                        <i class="fas fa-eye"></i>
-                                    </a>
-                                    <button onclick="removeSavedRecipe('${recipe.id}')" class="unsave-btn">
-                                        <i class="fas fa-times-circle"></i>
-                                    </button>
+                                <div class="recipe-info">
+                                    <div class="recipe-name">${recipe.title}</div>
                                 </div>
-                            </div>
+                                <span class="recipe-bookmark" onclick="toggleSaveRecipe(event, '${recipe.id}', '${encodeURIComponent(JSON.stringify(recipe))}')">
+                                    <i class='fas fa-bookmark'></i>
+                                </span>
+                            </a>
                         `).join('');
                     }
                     
@@ -716,158 +703,29 @@
             }
         };
 
-        window.removeSavedRecipe = function(recipeId) {
-            let savedRecipes = JSON.parse(localStorage.getItem('savedRecipes')) || [];
-            savedRecipes = savedRecipes.filter(recipe => recipe.id !== recipeId);
-            localStorage.setItem('savedRecipes', JSON.stringify(savedRecipes));
-            
-            // Reload the saved recipes section
-            const savedRecipesGrid = document.getElementById('savedRecipesGrid');
-            if (savedRecipes.length === 0) {
-                savedRecipesGrid.innerHTML = '<p style="color: #666; text-align: center;">No saved recipes yet</p>';
-            } else {
-                savedRecipesGrid.innerHTML = savedRecipes.map(recipe => `
-                    <div class="recipe-card" data-recipe-id="${recipe.id}" onclick="handleRecipeCardClick(this, event)">
-                        <input type="checkbox" class="recipe-checkbox" onclick="handleCheckboxClick(event)" onchange="toggleRecipeSelection(this)">
-                        <div class="recipe-content" style="display: flex; align-items: center; flex-grow: 1;">
-                            <div class="recipe-icon">
-                                <i class="fas fa-utensils"></i>
-                            </div>
-                            <div class="recipe-info">
-                                <div class="recipe-name">${recipe.title}</div>
-                            </div>
-                        </div>
-                        <div class="recipe-actions">
-                            <a href="recipe-details.html?id=${recipe.id}" class="view-btn">
-                                <i class="fas fa-eye"></i>
-                            </a>
-                            <button onclick="removeSavedRecipe('${recipe.id}')" class="unsave-btn">
-                                <i class="fas fa-times-circle"></i>
-                            </button>
-                        </div>
-                    </div>
-                `).join('');
-            }
-        };
-
-        window.toggleMultiSelectMode = function() {
-            const multiSelectBtn = document.getElementById('multiSelectBtn');
-            const multiSelectText = document.getElementById('multiSelectText');
-            const selectAllBtn = document.getElementById('selectAllBtn');
-            const recipeCards = document.querySelectorAll('.recipe-card');
-            const removeSelectedBtn = document.getElementById('removeSelectedBtn');
-            
-            multiSelectBtn.classList.toggle('active');
-            const isMultiSelectMode = multiSelectBtn.classList.contains('active');
-            
-            // Update button text and show/hide select all button
-            multiSelectText.textContent = isMultiSelectMode ? 'Cancel' : 'Select Multiple';
-            selectAllBtn.classList.toggle('active', isMultiSelectMode);
-            
-            recipeCards.forEach(card => {
-                if (isMultiSelectMode) {
-                    card.classList.add('multi-select-mode');
-                } else {
-                    card.classList.remove('multi-select-mode');
-                    card.classList.remove('selected');
-                    const checkbox = card.querySelector('.recipe-checkbox');
-                    if (checkbox) checkbox.checked = false;
-                }
-            });
-            
-            removeSelectedBtn.style.display = isMultiSelectMode ? 'block' : 'none';
-            updateRemoveSelectedButton();
-        }
-
-        window.selectAllRecipes = function() {
-            const checkboxes = document.querySelectorAll('.recipe-checkbox');
-            checkboxes.forEach(checkbox => {
-                checkbox.checked = true;
-                toggleRecipeSelection(checkbox);
-            });
-        }
-
-        window.handleCheckboxClick = function(event) {
-            // Stop the event from bubbling up to the card click handler
+        window.toggleSaveRecipe = function(event, recipeId, recipeDataEncoded) {
+            event.preventDefault();
             event.stopPropagation();
-        }
-
-        window.handleRecipeCardClick = function(card, event) {
-            // Prevent click if clicking on view button or remove button
-            if (event && (event.target.closest('.view-btn') || event.target.closest('.unsave-btn'))) {
-                return;
-            }
-
-            if (card.classList.contains('multi-select-mode')) {
-                const checkbox = card.querySelector('.recipe-checkbox');
-                if (checkbox) {
-                    checkbox.checked = !checkbox.checked;
-                    toggleRecipeSelection(checkbox);
-                }
-            }
-        }
-
-        window.toggleRecipeSelection = function(checkbox) {
-            const recipeCard = checkbox.closest('.recipe-card');
-            if (checkbox.checked) {
-                recipeCard.classList.add('selected');
-            } else {
-                recipeCard.classList.remove('selected');
-            }
-            updateRemoveSelectedButton();
-        }
-
-        window.updateRemoveSelectedButton = function() {
-            const selectedRecipes = document.querySelectorAll('.recipe-checkbox:checked');
-            const removeSelectedBtn = document.getElementById('removeSelectedBtn');
-            const multiSelectBtn = document.getElementById('multiSelectBtn');
-            
-            if (multiSelectBtn.classList.contains('active')) {
-                removeSelectedBtn.style.display = selectedRecipes.length > 0 ? 'block' : 'none';
-            }
-        }
-
-        window.removeSelectedRecipes = function() {
-            const selectedCheckboxes = document.querySelectorAll('.recipe-checkbox:checked');
-            const recipeIds = Array.from(selectedCheckboxes).map(checkbox => 
-                checkbox.closest('.recipe-card').dataset.recipeId
-            );
-            
+            const iconSpan = event.currentTarget;
             let savedRecipes = JSON.parse(localStorage.getItem('savedRecipes')) || [];
-            savedRecipes = savedRecipes.filter(recipe => !recipeIds.includes(recipe.id));
-            localStorage.setItem('savedRecipes', JSON.stringify(savedRecipes));
-            
-            // Reload the saved recipes section
-            const savedRecipesGrid = document.getElementById('savedRecipesGrid');
-            if (savedRecipes.length === 0) {
-                savedRecipesGrid.innerHTML = '<p style="color: #666; text-align: center;">No saved recipes yet</p>';
+            const isSaved = iconSpan.querySelector('i.fas.fa-bookmark');
+            if (isSaved) {
+                // Unsave: change to outlined, remove from localStorage
+                savedRecipes = savedRecipes.filter(recipe => recipe.id !== recipeId);
+                localStorage.setItem('savedRecipes', JSON.stringify(savedRecipes));
+                iconSpan.innerHTML = `<img src=\"data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'><path d='M19 21l-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z' fill='none'/></svg>\" alt=\"Unsaved\" style=\"width: 20px; height: 20px; vertical-align: middle; cursor:pointer;\" />`;
+                iconSpan.removeAttribute('title');
+                iconSpan.onclick = function(e) { window.toggleSaveRecipe(e, recipeId, recipeDataEncoded); };
             } else {
-                savedRecipesGrid.innerHTML = savedRecipes.map(recipe => `
-                    <div class="recipe-card" data-recipe-id="${recipe.id}" onclick="handleRecipeCardClick(this, event)">
-                        <input type="checkbox" class="recipe-checkbox" onclick="handleCheckboxClick(event)" onchange="toggleRecipeSelection(this)">
-                        <div class="recipe-content" style="display: flex; align-items: center; flex-grow: 1;">
-                            <div class="recipe-icon">
-                                <i class="fas fa-utensils"></i>
-                            </div>
-                            <div class="recipe-info">
-                                <div class="recipe-name">${recipe.title}</div>
-                            </div>
-                        </div>
-                        <div class="recipe-actions">
-                            <a href="recipe-details.html?id=${recipe.id}" class="view-btn">
-                                <i class="fas fa-eye"></i>
-                            </a>
-                            <button onclick="removeSavedRecipe('${recipe.id}')" class="unsave-btn">
-                                <i class="fas fa-times-circle"></i>
-                            </button>
-                        </div>
-                    </div>
-                `).join('');
+                // Save: change to filled, add to localStorage
+                const recipeData = JSON.parse(decodeURIComponent(recipeDataEncoded));
+                savedRecipes.push(recipeData);
+                localStorage.setItem('savedRecipes', JSON.stringify(savedRecipes));
+                iconSpan.innerHTML = `<i class='fas fa-bookmark'></i>`;
+                iconSpan.removeAttribute('title');
+                iconSpan.onclick = function(e) { window.toggleSaveRecipe(e, recipeId, recipeDataEncoded); };
             }
-            
-            // Exit multi-select mode after removing recipes
-            toggleMultiSelectMode();
-        };
+        }
     </script>
 </body>
 </html>

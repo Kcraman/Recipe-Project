@@ -188,10 +188,10 @@
         }
 
         .saved-recipes-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            display: flex;
+            flex-direction: column;
             gap: 20px;
-            padding: 20px;
+            padding: 20px 0;
         }
 
         .recipe-card {
@@ -381,12 +381,14 @@
                 return;
             }
 
+            // Sort recipes alphabetically by title
+            savedRecipes.sort((a, b) => a.title.localeCompare(b.title));
+
             savedRecipesGrid.innerHTML = savedRecipes.map(recipe => `
                 <div class="recipe-card">
-                    <h3>${recipe.title}</h3>
-                    <div class="recipe-actions">
-                        <button class="view-recipe-btn" onclick="viewRecipe('${recipe.id}')">View Recipe</button>
-                        <button class="remove-saved-btn" onclick="removeSavedRecipe('${recipe.id}')">Remove</button>
+                    <div style="display: flex; align-items: center; justify-content: space-between;">
+                        <h3 style="cursor:pointer;color:#5B4B3A;margin:0;" onclick="viewRecipe('${recipe.id}')">${recipe.title}</h3>
+                        <button class="remove-saved-btn" style="margin-left: 24px;" onclick="removeSavedRecipe('${recipe.id}')">Remove</button>
                     </div>
                 </div>
             `).join('');
