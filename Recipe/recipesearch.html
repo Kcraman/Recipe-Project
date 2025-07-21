@@ -355,7 +355,7 @@
         <div>
             <a href="home.html">Home</a>
             <a href="Recipe.html">Recipes</a>
-            <a href="#">Search Ingredients</a>
+            <a href="search-ingredient.html">Search Ingredients</a>
             <a href="saved.html">Saved</a>
             <a href="#">Favourites</a>
             <a href="createrecipe.html">Add Recipe</a>
@@ -365,14 +365,20 @@
         </div>
     </div>
 
-    <div class="search-container">
-        <div class="search-box">
-            <input id="search-box" type="text" placeholder="Search for another recipe..." />
-            <button id="search-btn">Search</button>
-        </div>
+    <!-- Place the back button inside the white recipe-card container -->
+    <div class="recipe-card" id="recipe-details-container">
+      <div id="backBtnContainer" style="margin-bottom:20px;text-align:left;">
+        <button id="backBtn" style="background:#5B4B3A;color:#fff;border:none;border-radius:8px;padding:10px 22px;font-size:16px;cursor:pointer;display:flex;align-items:center;gap:8px;">
+          <i class="fas fa-arrow-left"></i> Back
+        </button>
+      </div>
+      <div id="recipe-details"></div>
     </div>
-
-    <div class="recipe-card" id="recipe-details"></div>
+    <script>
+      document.getElementById('backBtn').onclick = function() {
+        window.history.back();
+      };
+    </script>
 
     <script>
         function toggleMenu() {
@@ -456,6 +462,14 @@
                     html += `<h2><a href="recipe-details.html?id=${recipeId}" style="text-decoration: none; color: inherit;">${capitalize(data.name)}</a></h2>`;
                 }
 
+                // Save Button
+                const savedRecipes = JSON.parse(localStorage.getItem('savedRecipes')) || [];
+                const isSaved = savedRecipes.some(r => r.id === recipeId);
+                html += `<button id="saveRecipeBtn" class="save-recipe-btn${isSaved ? ' saved' : ''}" style="margin-bottom:20px;float:right;">
+                    <i class="fas ${isSaved ? 'fa-check' : 'fa-bookmark'}"></i>
+                    <span>${isSaved ? 'Saved' : 'Save'}</span>
+                </button>`;
+
                 // Ingredients Section
                 if (data.ingredients) {
                     html += `
@@ -472,7 +486,65 @@
                     html += `</ul></div>`;
                 }
 
+                // Steps/Instructions Section
+                if (data.steps || data.instructions) {
+                    const steps = data.steps || data.instructions;
+                    html += `
+                        <div class="recipe-section">
+                            <h3><i class="fas fa-clipboard-list"></i> Steps</h3>
+                            <ul class="instructions-list">`;
+                    if (Array.isArray(steps)) {
+                        steps.forEach(step => {
+                            html += `<li>${step}</li>`;
+                        });
+                    } else {
+                        html += `<li>${steps}</li>`;
+                    }
+                    html += `</ul></div>`;
+                }
+
                 container.innerHTML = html;
+
+                // Add save/unsave logic after rendering
+                const saveBtn = document.getElementById('saveRecipeBtn');
+                if (saveBtn) {
+                    saveBtn.onclick = async function() {
+                        // Save to localStorage
+                        let savedRecipes = JSON.parse(localStorage.getItem('savedRecipes')) || [];
+                        const isSaved = savedRecipes.some(r => r.id === recipeId);
+                        if (isSaved) {
+                            savedRecipes = savedRecipes.filter(r => r.id !== recipeId);
+                            saveBtn.classList.remove('saved');
+                            saveBtn.innerHTML = '<i class="fas fa-bookmark"></i><span>Save</span>';
+                        } else {
+                            savedRecipes.push({
+                                id: recipeId,
+                                title: data.name,
+                                cookingTime: data.cookingTime || '',
+                                calories: data.calories || ''
+                            });
+                            saveBtn.classList.add('saved');
+                            saveBtn.innerHTML = '<i class="fas fa-check"></i><span>Saved</span>';
+                        }
+                        localStorage.setItem('savedRecipes', JSON.stringify(savedRecipes));
+
+                        // Save to Firestore under user's savedRecipes if logged in
+                        const user = auth.currentUser;
+                        if (!user) {
+                            alert('Please log in to save recipes.');
+                            return;
+                        }
+                        try {
+                            const { doc, setDoc, collection } = await import('https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js');
+                            await setDoc(doc(collection(db, 'users', user.uid, 'savedRecipes'), recipeId), {
+                                ...data,
+                                savedAt: new Date()
+                            });
+                        } catch (e) {
+                            alert('Error saving recipe to your account.');
+                        }
+                    };
+                }
             } else {
                 container.innerHTML = "<p>Recipe not found.</p>";
             }
@@ -485,12 +557,21 @@
         }
 
         document.querySelector("#search-btn").addEventListener("click", async () => {
-            const searchValue = document.querySelector("#search-box").value.trim().toLowerCase();
-            const q = query(collection(db, "Recipes"), where("name", "==", searchValue));
+            const input = document.querySelector("#search-box").value.trim().toLowerCase();
+            const errorDiv = document.getElementById('searchError');
+            errorDiv.style.display = 'none';
+            errorDiv.textContent = '';
+            if (!input) {
+                errorDiv.textContent = "Please enter a recipe name.";
+                errorDiv.style.display = 'block';
+                return;
+            }
+            const recipesRef = collection(db, "Recipes");
+            const q = query(recipesRef, where("name", "==", input));
             const recipe = await getDocs(q);
-
             if (recipe.empty) {
-                alert("Recipe not found!");
+                errorDiv.textContent = 'No recipe found with that name.';
+                errorDiv.style.display = 'block';
             } else {
                 recipe.forEach((doc) => {
                     window.location.replace(`recipesearch.html?id=${doc.id}`);

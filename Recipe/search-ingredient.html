@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Recipe Finder</title>
+  <title>Search by Ingredients | Recipe Finder</title>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
   <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600&display=swap" rel="stylesheet">
   <style>
@@ -17,7 +17,6 @@
       background-attachment: fixed;
       min-height: 100vh;
     }
-
     .overlay {
       background: rgba(8, 8, 8, 0.6);
       position: fixed;
@@ -27,7 +26,6 @@
       height: 100vh;
       z-index: 0;
     }
-
     .top-bar {
       height: 80px;
       width: 100%;
@@ -92,15 +90,6 @@
       border-radius: 3px;
       box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
     }
-    .menu-icon:hover div:nth-child(1) {
-      transform: none;
-    }
-    .menu-icon:hover div:nth-child(2) {
-      opacity: 1;
-    }
-    .menu-icon:hover div:nth-child(3) {
-      transform: none;
-    }
     .sidebar {
       position: fixed;
       left: -300px;
@@ -146,7 +135,7 @@
       max-width: 650px;
       margin: 130px auto 0 auto;
       padding: 56px 38px 38px 38px;
-      background: rgba(252, 247, 238, 0.97); /* soft creamy */
+      background: rgba(252, 247, 238, 0.97);
       border-radius: 22px;
       box-shadow: 0 8px 32px 0 rgba(91, 75, 58, 0.10), 0 1.5px 6px 0 rgba(0,0,0,0.08);
       text-align: center;
@@ -154,22 +143,6 @@
       top: 70px;
       animation: fadeIn 0.7s;
       border: 1.5px solid #e7d3b1;
-    }
-    .main-content h2 {
-      color: #A67B5B; /* Slightly darker gold */
-      font-size: 36px;
-      margin-bottom: 18px;
-      font-weight: 700;
-      letter-spacing: 1.2px;
-      line-height: 1.2;
-      text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.1);
-    }
-    .main-content p {
-      color: #64502c;
-      font-size: 20px;
-      margin-bottom: 34px;
-      font-weight: 500;
-      letter-spacing: 0.2px;
     }
     .search-box {
       display: flex;
@@ -210,18 +183,72 @@
       transform: translateY(-2px);
       box-shadow: 0 5px 15px rgba(91, 75, 58, 0.2);
     }
-    @keyframes fadeIn {
-      from { opacity: 0; transform: translateY(20px); }
-      to { opacity: 1; transform: translateY(0); }
+    .result-area {
+      margin-top: 30px;
+      text-align: left;
     }
-    @media (max-width: 700px) {
-      .main-content {
-        max-width: 95vw;
-        padding: 20px 5vw;
-      }
-      .search-box input[type="text"] {
-        width: 120px;
-      }
+    .recipe-result {
+      background: #fff;
+      border-radius: 12px;
+      box-shadow: 0 2px 8px rgba(91, 75, 58, 0.08);
+      margin-bottom: 24px;
+      padding: 24px 20px;
+      border: 1px solid #e7d3b1;
+      animation: fadeIn 0.5s;
+    }
+    .recipe-title {
+      font-size: 22px;
+      font-weight: 600;
+      color: #5B4B3A;
+      margin-bottom: 10px;
+    }
+    .ingredient-list {
+      margin: 0 0 10px 0;
+      padding-left: 18px;
+      color: #7a684a;
+    }
+    .ingredient-list span {
+      font-weight: 500;
+      color: #A67B5B;
+    }
+    .view-btn {
+      background-color: #5B4B3A;
+      color: #fff;
+      border: none;
+      border-radius: 8px;
+      font-size: 15px;
+      padding: 8px 20px;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      margin-top: 10px;
+    }
+    .view-btn:hover {
+      background-color: #745d47;
+      transform: translateY(-2px);
+    }
+    .save-btn {
+      background-color: #5B4B3A;
+      color: #fff;
+      border: none;
+      border-radius: 8px;
+      font-size: 15px;
+      padding: 8px 20px;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      margin-top: 10px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .save-btn:hover {
+      background-color: #745d47;
+      transform: translateY(-2px);
+    }
+    .save-btn i {
+      font-size: 16px;
+    }
+    .save-btn span {
+      font-size: 15px;
     }
     .user-icon {
       position: fixed;
@@ -245,74 +272,14 @@
       transform: scale(1.05);
       color: #fff;
     }
-    .user-profile {
-      display: none;
-    }
-    .login-link {
-      display: none;
-    }
-    .error-message {
-      display: none;
-      background-color: #fff3f3;
-      border-left: 4px solid #ff6b6b;
-      color: #d63031;
-      padding: 15px;
-      margin: 20px 0;
-      border-radius: 8px;
-      font-size: 14px;
-      animation: slideIn 0.3s ease-out;
-      box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
-    }
-    .error-message i {
-      margin-right: 8px;
-      color: #ff6b6b;
-    }
-    @keyframes slideIn {
-      from {
-        opacity: 0;
-        transform: translateY(-10px);
-      }
-      to {
-        opacity: 1;
-        transform: translateY(0);
-      }
-    }
-    .add-recipe-btn {
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      gap: 10px;
-      margin: 30px auto;
-      padding: 14px 35px;
-      background-color: #5B4B3A;
-      color: white;
-      border: none;
-      border-radius: 8px;
-      font-size: 18px;
-      font-weight: 600;
-      cursor: pointer;
-      transition: all 0.3s ease;
-      text-decoration: none;
-      max-width: 200px;
-    }
-    .add-recipe-btn i {
-      font-size: 20px;
-    }
-    .add-recipe-btn:hover {
-      background-color: #745d47;
-      transform: translateY(-2px);
-      box-shadow: 0 5px 15px rgba(91, 75, 58, 0.2);
-    }
   </style>
 </head>
 <body>
-
   <div class="overlay"></div>
-
   <div class="top-bar">
     <h1 class="heading">
       <i class="fas fa-utensils"></i>
-      <span class="heading-text">Recipe Finder</span>
+      <a href="home.html" class="heading-text" style="color:inherit;text-decoration:none;">Recipe Finder</a>
       <i class="fas fa-utensils"></i>
     </h1>
   </div>
@@ -327,9 +294,9 @@
   </a>
   <div class="sidebar" id="sidebar">
     <div>
-      <a href="home.html" class="active">Home</a>
+      <a href="home.html">Home</a>
       <a href="Recipe.html">Recipes</a>
-      <a href="search-ingredient.html">Search Ingredients</a>
+      <a href="search-ingredient.html" class="active">Search Ingredients</a>
       <a href="saved.html">Saved</a>
       <a href="#">Favourites</a>
       <a href="createrecipe.html">Add Recipe</a>
@@ -339,21 +306,13 @@
     </div>
   </div>
   <div class="main-content">
-    <h2>Welcome to Recipe Finder</h2>
-    <p>Relax, explore, and find your next favorite meal or ingredient.<br><br>Search by recipe name or ingredient below!</p>
-    <div id="errorContainer" class="error-message"></div>
+    <h2>Find Recipes by Ingredients</h2>
+    <p style="margin-bottom:18px;color:#5B4B3A;font-size:16px;">Type the ingredients you have, separated by commas (e.g. tomato, onion, chicken)</p>
     <div class="search-box">
-      <input type="text" id="inputbox1" placeholder="Search Recipes" />
-      <button id="search-btn">Search</button>
+      <input type="text" id="ingredientInput" placeholder="Enter the ingredients you have" />
+      <button id="ingredientSearchBtn">Search</button>
     </div>
-    <div class="search-box">
-      <input type="text" placeholder="Generate Recipes" />
-      <button type="button">Find Recipes</button>
-    </div>
-    <a href="createrecipe.html" class="add-recipe-btn">
-      <i class="fas fa-plus"></i>
-      Add Recipe
-    </a>
+    <div id="resultArea" class="result-area"></div>
   </div>
   <script>
     function toggleMenu() {
@@ -364,13 +323,9 @@
         document.getElementById('sidebar').classList.remove('active');
       });
     });
-
-    // Add click event listener to close sidebar when clicking outside
     document.addEventListener('click', function(event) {
       const sidebar = document.getElementById('sidebar');
       const menuIcon = document.querySelector('.menu-icon');
-      
-      // Check if sidebar is active and click is outside both sidebar and menu icon
       if (sidebar.classList.contains('active') && 
           !sidebar.contains(event.target) && 
           !menuIcon.contains(event.target)) {
@@ -380,9 +335,8 @@
   </script>
   <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
-    import { getFirestore, collection, query, where, getDocs } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+    import { getFirestore, collection, getDocs } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
     import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
-    
     const firebaseConfig = {
       apiKey: "AIzaSyAYWtxU8MhK1BKgwrRViZ5GM9RyvVtAOfc",
       authDomain: "recipe-finder-sign-in.firebaseapp.com",
@@ -392,71 +346,91 @@
       appId: "1:883935562264:web:627cabc25e42c13f0ed16d",
       measurementId: "G-G5YCPWNZDQ"
     };
-    
     const app = initializeApp(firebaseConfig);
     const db = getFirestore(app);
     const auth = getAuth(app);
-
-    // Check authentication state
     onAuthStateChanged(auth, async (user) => {
       const userIcon = document.getElementById('userIcon');
       const userText = document.getElementById('userText');
-
       if (user) {
-        // User is signed in
-        userIcon.href = "User.html"; // Changed to redirect to User.html
-        const userDoc = await getDocs(query(collection(db, "users"), where("email", "==", user.email)));
-        if (!userDoc.empty) {
-          const userData = userDoc.docs[0].data();
-          userText.textContent = userData.firstname;
-        }
+        userIcon.href = "User.html";
+        const usersRef = collection(db, "users");
+        const userDocs = await getDocs(usersRef);
+        userDocs.forEach(doc => {
+          if (doc.data().email === user.email) {
+            userText.textContent = doc.data().firstname;
+          }
+        });
       } else {
-        // User is signed out
         userIcon.href = "Login.html";
         userText.textContent = "Login";
       }
     });
-
-    document.querySelector("#search-btn").addEventListener("click", async () => {
-      const inputBox = document.querySelector("#inputbox1");
-      const searchValue = inputBox.value.trim().toLowerCase();
-      if (!searchValue) {
-        inputBox.value = '';
-        inputBox.placeholder = 'Please enter recipes';
-        inputBox.style.borderColor = '#dc3545';
-        inputBox.style.background = '#fff3f3';
-        // Remove previous input event if any
-        inputBox.oninput = null;
-        inputBox.addEventListener('input', function handleInput() {
-          if (inputBox.value.trim() !== '') {
-            inputBox.style.borderColor = '';
-            inputBox.style.background = '';
-            inputBox.placeholder = 'Search Recipes';
-            inputBox.removeEventListener('input', handleInput);
-          }
-        });
+    document.getElementById('ingredientSearchBtn').addEventListener('click', async () => {
+      const input = document.getElementById('ingredientInput').value.trim().toLowerCase();
+      const resultArea = document.getElementById('resultArea');
+      if (!input) {
+        resultArea.innerHTML = '<div style="color:#d63031;">Please enter at least one ingredient.</div>';
         return;
       }
+      const inputIngredients = input.split(',').map(i => i.trim()).filter(i => i);
       const recipesRef = collection(db, "Recipes");
       const recipesSnapshot = await getDocs(recipesRef);
-      let found = false;
-      recipesSnapshot.forEach((doc) => {
-        const recipeName = doc.data().name.toLowerCase();
-        if (recipeName.includes(searchValue)) {
-          found = true;
-          window.location.href = `recipesearch.html?id=${doc.id}`;
+      let foundAny = false;
+      let html = '';
+      recipesSnapshot.forEach(doc => {
+        const data = doc.data();
+        const recipeIngredients = (data.ingredients || []).map(i => i.toLowerCase());
+        const usedIngredients = inputIngredients.filter(i => recipeIngredients.includes(i));
+        const missedIngredients = recipeIngredients.filter(i => !inputIngredients.includes(i));
+        if (usedIngredients.length > 0) {
+          foundAny = true;
+          html += `<div class="recipe-result" data-id="${doc.id}">
+            <div class="recipe-title">${data.name}</div>
+            <div class="ingredient-list"><span>Used:</span> ${usedIngredients.length > 0 ? usedIngredients.join(', ') : 'None'}</div>
+            <div class="ingredient-list"><span>Missed:</span> ${missedIngredients.length > 0 ? missedIngredients.join(', ') : 'None'}</div>
+            <button class="view-btn" onclick="window.location.href='recipesearch.html?id=${doc.id}'">View Recipe</button>
+          </div>`;
         }
       });
-      if (!found) {
-        const errorContainer = document.getElementById('errorContainer');
-        errorContainer.innerHTML = `<i class="fas fa-exclamation-circle"></i> Recipe "${searchValue}" not found.`;
-        errorContainer.style.display = 'block';
-        setTimeout(() => {
-          errorContainer.style.display = 'none';
-        }, 5000);
+      if (!foundAny) {
+        html = '<div style="color:#d63031;">No recipes found with the given ingredients.</div>';
       }
+      resultArea.innerHTML = html;
+      // Add save button logic
+      document.querySelectorAll('.save-btn').forEach(btn => {
+        btn.addEventListener('click', async function() {
+          const recipeId = this.getAttribute('data-id');
+          const recipeDiv = this.closest('.recipe-result');
+          this.disabled = true;
+          this.innerHTML = '<i class="fas fa-check"></i> <span>Saved</span>';
+          // Save to Firestore under user's savedRecipes if logged in
+          const user = auth.currentUser;
+          if (!user) {
+            alert('Please log in to save recipes.');
+            this.disabled = false;
+            this.innerHTML = '<i class="fas fa-bookmark"></i> <span>Save</span>';
+            return;
+          }
+          // Get recipe data
+          const recipeDoc = recipesSnapshot.docs.find(d => d.id === recipeId);
+          if (!recipeDoc) return;
+          const recipeData = recipeDoc.data();
+          // Save to user's savedRecipes subcollection
+          try {
+            const { doc, setDoc, collection } = await import('https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js');
+            await setDoc(doc(collection(db, 'users', user.uid, 'savedRecipes'), recipeId), {
+              ...recipeData,
+              savedAt: new Date()
+            });
+          } catch (e) {
+            alert('Error saving recipe.');
+            this.disabled = false;
+            this.innerHTML = '<i class="fas fa-bookmark"></i> <span>Save</span>';
+          }
+        });
+      });
     });
   </script>
 </body>
 </html>
-
