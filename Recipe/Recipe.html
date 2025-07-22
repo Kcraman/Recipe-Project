@@ -140,6 +140,13 @@
         transform: translateX(5px);
     }
 
+    .sidebar a.active {
+        background-color: rgba(255, 255, 255, 0.2);
+        border-left: 4px solid #F5E6C8;
+        padding-left: 15px;
+        font-weight: 500;
+    }
+
     .sidebar .bottom-link {
         margin-bottom: 40px;
     }
@@ -278,6 +285,53 @@
         from { opacity: 0; transform: translateY(20px); }
         to { opacity: 1; transform: translateY(0); }
     }
+
+    .recipe-card {
+        background: rgba(255, 255, 255, 0.95);
+        border-radius: 15px;
+        padding: 20px;
+        box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+        transition: transform 0.3s ease;
+        position: relative;
+    }
+
+    .recipe-card:hover {
+        transform: translateY(-5px);
+    }
+
+    .save-recipe-btn {
+        position: absolute;
+        top: 15px;
+        right: 15px;
+        background-color: #5B4B3A;
+        color: white;
+        border: none;
+        padding: 8px 15px;
+        border-radius: 8px;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        font-size: 14px;
+        font-weight: 500;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+    }
+
+    .save-recipe-btn:hover {
+        background-color: #745d47;
+        transform: translateY(-2px);
+        box-shadow: 0 4px 15px rgba(91, 75, 58, 0.3);
+    }
+
+    .save-recipe-btn.saved {
+        background-color: #28a745;
+    }
+
+    .save-recipe-btn.saved:hover {
+        background-color: #218838;
+        box-shadow: 0 4px 15px rgba(40, 167, 69, 0.3);
+    }
 </style>
 </head>
 <body>
@@ -305,10 +359,11 @@
     <div class="sidebar" id="sidebar">
         <div>
             <a href="home.html">Home</a>
-            <a href="recipe.html">Recipes</a>
-            <a href="#">Search Ingredients</a>
-            <a href="#">Saved</a>
+            <a href="Recipe.html" class="active">Recipes</a>
+            <a href="search-ingredient.html">Search Ingredients</a>
+            <a href="saved.html">Saved</a>
             <a href="#">Favourites</a>
+            <a href="createrecipe.html">Add Recipe</a>
         </div>
         <div class="bottom-link">
             <a href="User.html">User</a>
@@ -420,17 +475,82 @@
                 categorySection.innerHTML = `
                     <div class="category-header">${letter}</div>
                     <div class="recipe-list">
-                        ${groupedRecipes[letter].map(recipe => `
-                            <a href="recipe-details.html?id=${recipe.id}" class="recipe-name">
-                                ${recipe.name}
-                            </a>
-                        `).join('')}
+                        ${groupedRecipes[letter].map(recipe => {
+                            const savedRecipes = JSON.parse(localStorage.getItem('savedRecipes')) || [];
+                            const isSaved = savedRecipes.some(r => r.id === recipe.id);
+                            return `
+                                <div class="recipe-name" style="position: relative;">
+                                    <button class="save-recipe-btn ${isSaved ? 'saved' : ''}" onclick="toggleSaveRecipe('${recipe.id}', '${recipe.name}')">
+                                        <i class="fas ${isSaved ? 'fa-check' : 'fa-bookmark'}"></i>
+                                        <span>${isSaved ? 'Saved' : 'Save'}</span>
+                                    </button>
+                                    <a href="recipe-details.html?id=${recipe.id}" style="text-decoration: none; color: inherit; display: block; padding-right: 120px;">
+                                        ${recipe.name.split(' ').map(word => word.charAt(0).toUpperCase() + word.slice(1)).join(' ')}
+                                    </a>
+                                </div>
+                            `;
+                        }).join('')}
                     </div>
                 `;
                 categoryNav.appendChild(categorySection);
             });
         } else {
             categoryNav.innerHTML = '<p style="color: #F5E6C8; text-align: center;">No recipes found.</p>';
+        }
+    </script>
+
+    <script>
+        function toggleMenu() {
+            document.getElementById('sidebar').classList.toggle('active');
+        }
+        
+        document.querySelectorAll('.sidebar a').forEach(link => {
+            link.addEventListener('click', () => {
+                document.getElementById('sidebar').classList.remove('active');
+            });
+        });
+
+        // Add click event listener to close sidebar when clicking outside
+        document.addEventListener('click', function(event) {
+            const sidebar = document.getElementById('sidebar');
+            const menuIcon = document.querySelector('.menu-icon');
+            
+            if (sidebar.classList.contains('active') && 
+                !sidebar.contains(event.target) && 
+                !menuIcon.contains(event.target)) {
+                sidebar.classList.remove('active');
+            }
+        });
+
+        // Save recipe functionality
+        function toggleSaveRecipe(recipeId, recipeName) {
+            const saveBtn = event.currentTarget;
+            
+            // Get existing saved recipes
+            let savedRecipes = JSON.parse(localStorage.getItem('savedRecipes')) || [];
+            
+            // Check if recipe is already saved
+            const isSaved = savedRecipes.some(r => r.id === recipeId);
+            
+            if (isSaved) {
+                // Remove from saved recipes
+                savedRecipes = savedRecipes.filter(r => r.id !== recipeId);
+                saveBtn.classList.remove('saved');
+                saveBtn.innerHTML = '<i class="fas fa-bookmark"></i><span>Save</span>';
+            } else {
+                // Add to saved recipes
+                savedRecipes.push({
+                    id: recipeId,
+                    title: recipeName,
+                    cookingTime: '30 mins',
+                    calories: '350 kcal'
+                });
+                saveBtn.classList.add('saved');
+                saveBtn.innerHTML = '<i class="fas fa-check"></i><span>Saved</span>';
+            }
+            
+            // Update localStorage
+            localStorage.setItem('savedRecipes', JSON.stringify(savedRecipes));
         }
     </script>
 </body>
