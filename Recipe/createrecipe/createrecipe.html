@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Create Recipe</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="createrecipe.css">
+</head>
+<body>
+    <div class="overlay"></div>
+
+    <div class="top-bar">
+        <h1 class="heading">
+            <i class="fas fa-utensils"></i>
+            <a href="home.html" class="heading-text">Recipe Finder</a>
+            <i class="fas fa-utensils"></i>
+        </h1>
+    </div>
+
+    <div class="menu-icon" onclick="toggleMenu()">
+        <div></div>
+        <div></div>
+        <div></div>
+    </div>
+
+    <a href="#" class="user-icon" id="userIcon">
+        <i class="fas fa-user"></i>
+        <span id="userText">Login</span>
+    </a>
+
+    <div class="sidebar" id="sidebar">
+        <div>
+            <a href="home.html">Home</a>
+            <a href="Recipe.html">Recipes</a>
+            <a href="search-ingredient.html">Search Ingredients</a>
+            <a href="saved.html">Saved</a>
+            <a href="#">Favourites</a>
+            <a href="createrecipe.html" class="active">Add Recipe</a>
+        </div>
+        <div class="bottom-link">
+            <a href="User.html">User</a>
+        </div>
+    </div>
+
+    <div class="main-content">
+        <a href="javascript:history.back()" class="back-btn">
+            <i class="fas fa-arrow-left"></i>
+            <span>Back</span>
+        </a>
+        <h2><i class="fas fa-utensils"></i>Create Recipe</h2>
+        <div id="errorContainer" class="error-message"></div>
+        <div id="successContainer" class="success-message"></div>
+        <form id="recipeForm" class="recipe-form">
+            <div class="form-group">
+                <label for="recipeName">Recipe Name</label>
+                <input type="text" id="recipeName" required placeholder="Enter recipe name">
+            </div>
+
+            <div class="form-group">
+                <label>Ingredients</label>
+                <div id="ingredientsList" class="ingredients-list">
+                    <div class="list-item">
+                        <input type="text" placeholder="Enter ingredient" required>
+                        <button type="button" class="remove-btn" onclick="removeItem(this)">
+                            <i class="fas fa-times"></i>
+                        </button>
+                    </div>
+                </div>
+                <button type="button" class="add-btn" onclick="addIngredient()">
+                    <i class="fas fa-plus"></i> Add Ingredient
+                </button>
+            </div>
+
+            <div class="form-group">
+                <label>Instructions</label>
+                <div id="instructionsList" class="instructions-list">
+                    <div class="list-item">
+                        <input type="text" placeholder="Enter instruction step" required>
+                        <button type="button" class="remove-btn" onclick="removeItem(this)">
+                            <i class="fas fa-times"></i>
+                        </button>
+                    </div>
+                </div>
+                <button type="button" class="add-btn" onclick="addInstruction()">
+                    <i class="fas fa-plus"></i> Add Step
+                </button>
+            </div>
+
+            <button type="submit" class="submit-btn">Create Recipe</button>
+        </form>
+    </div>
+
+    <script type="module" src="createrecipe.js"></script>
+</body>
+</html>

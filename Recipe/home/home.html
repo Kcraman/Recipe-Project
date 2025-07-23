@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Recipe Finder</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="home.css">
+</head>
+<body>
+
+  <div class="overlay"></div>
+
+  <div class="top-bar">
+    <h1 class="heading">
+      <i class="fas fa-utensils"></i>
+      <span class="heading-text">Recipe Finder</span>
+      <i class="fas fa-utensils"></i>
+    </h1>
+  </div>
+  <div class="menu-icon" onclick="toggleMenu()">
+    <div></div>
+    <div></div>
+    <div></div>
+  </div>
+  <a href="#" class="user-icon" id="userIcon">
+    <i class="fas fa-user"></i>
+    <span id="userText">Login</span>
+  </a>
+  <div class="sidebar" id="sidebar">
+    <div>
+      <a href="home.html" class="active">Home</a>
+      <a href="Recipe.html">Recipes</a>
+      <a href="search-ingredient.html">Search Ingredients</a>
+      <a href="saved.html">Saved</a>
+      <a href="#">Favourites</a>
+      <a href="createrecipe.html">Add Recipe</a>
+    </div>
+    <div class="bottom-link">
+      <a href="User.html">User</a>
+    </div>
+  </div>
+  <div class="main-content">
+    <h2>Welcome to Recipe Finder</h2>
+    <p>Relax, explore, and find your next favorite meal or ingredient.<br><br>Search by recipe name or ingredient below!</p>
+    <div id="errorContainer" class="error-message"></div>
+    <div class="search-box">
+      <input type="text" id="inputbox1" placeholder="Search Recipes" />
+      <button id="search-btn">Search</button>
+    </div>
+    <div class="search-box">
+      <input type="text" placeholder="Generate Recipes" />
+      <button type="button">Find Recipes</button>
+    </div>
+    <a href="createrecipe.html" class="add-recipe-btn">
+      <i class="fas fa-plus"></i>
+      Add Recipe
+    </a>
+  </div>
+  <script type="module" src="home.js"></script>
+</body>
+</html>
+

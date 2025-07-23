@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>User Profile</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="user.css">
+</head>
+<body>
+    <div class="top-bar">
+        <h1 class="heading">
+            <i class="fas fa-utensils"></i>
+            <a href="home.html" class="heading-text">Recipe Finder</a>
+            <i class="fas fa-utensils"></i>
+        </h1>
+    </div>
+
+    <div class="menu-icon" onclick="toggleMenu()">
+        <div></div>
+        <div></div>
+        <div></div>
+    </div>
+
+    <div class="sidebar" id="sidebar">
+        <div>
+            <a href="home.html">Home</a>
+            <a href="Recipe.html">Recipes</a>
+            <a href="search-ingredient.html">Search Ingredients</a>
+            <a href="saved.html">Saved</a>
+            <a href="#">Favourites</a>
+            <a href="createrecipe.html">Add Recipe</a>
+        </div>
+        <div class="bottom-link">
+            <a href="User.html" class="active">User</a>
+        </div>
+    </div>
+
+    <div class="profile-container">
+        <div class="profile-header">
+            <div class="profile-avatar">
+                <i class="fas fa-user"></i>
+            </div>
+            <div class="profile-info">
+                <h1 class="profile-name" id="userName">Loading...</h1>
+                <p class="profile-email" id="userEmail">Loading...</p>
+            </div>
+            <div class="action-buttons">
+                <button class="btn btn-secondary" onclick="logout()">Logout</button>
+            </div>
+        </div>
+
+        <div class="recipes-container">
+            <div class="profile-section">
+                <h2 class="section-title">
+                    <div style="display: flex; align-items: center; gap: 10px;">
+                        <i class="fas fa-bookmark"></i>
+                        <span>Saved Recipes</span>
+                    </div>
+                </h2>
+                <div class="recipe-grid" id="savedRecipesGrid">
+                    <!-- Saved recipes will be loaded here -->
+                </div>
+            </div>
+
+            <div class="profile-section">
+                <h2 class="section-title">
+                    <i class="fas fa-heart"></i>
+                    Favorite Recipes
+                </h2>
+                <div class="recipe-grid" id="favoriteRecipesGrid">
+                    <!-- Favorite recipes will be loaded here -->
+                </div>
+            </div>
+
+            <div class="profile-section">
+                <h2 class="section-title">
+                    <div>
+                        <i class="fas fa-plus-circle"></i>
+                        Added Recipes
+                    </div>
+                    <a href="createrecipe.html" class="add-recipe-link">
+                        <i class="fas fa-plus"></i>
+                        Add
+                    </a>
+                </h2>
+                <div class="recipe-grid" id="addedRecipesGrid">
+                    <!-- Added recipes will be loaded here -->
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script type="module" src="user.js"></script>
+</body>
+</html>
