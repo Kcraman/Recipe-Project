@@ -46,7 +46,7 @@ onAuthStateChanged(auth, async (user) => {
 
   if (user) {
     // User is signed in
-    userIcon.href = "User.html"; // Changed to redirect to User.html
+    userIcon.href = "../user/User.html";
     const userDoc = await getDocs(query(collection(db, "users"), where("email", "==", user.email)));
     if (!userDoc.empty) {
       const userData = userDoc.docs[0].data();
@@ -54,7 +54,7 @@ onAuthStateChanged(auth, async (user) => {
     }
   } else {
     // User is signed out
-    userIcon.href = "Login.html";
+    userIcon.href = "../login/Login.html";
     userText.textContent = "Login";
   }
 });
@@ -86,7 +86,7 @@ document.querySelector("#search-btn").addEventListener("click", async () => {
     const recipeName = doc.data().name.toLowerCase();
     if (recipeName.includes(searchValue)) {
       found = true;
-      window.location.href = `recipesearch.html?id=${doc.id}`;
+      window.location.href = `../recipe/Recipe.html?id=${doc.id}`;
     }
   });
   if (!found) {

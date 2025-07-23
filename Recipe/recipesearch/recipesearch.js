@@ -50,7 +50,7 @@ onAuthStateChanged(auth, async (user) => {
 
     if (user) {
         // User is signed in
-        userIcon.href = "User.html";
+        userIcon.href = "../user/User.html";
         const userDoc = await getDocs(query(collection(db, "users"), where("email", "==", user.email)));
         if (!userDoc.empty) {
             const userData = userDoc.docs[0].data();
@@ -58,7 +58,7 @@ onAuthStateChanged(auth, async (user) => {
         }
     } else {
         // User is signed out
-        userIcon.href = "Login.html";
+        userIcon.href = "../login/Login.html";
         userText.textContent = "Login";
     }
 });
@@ -78,7 +78,7 @@ if (recipeId) {
 
         // Recipe Title
         if (data.name) {
-            html += `<h2><a href="recipe-details.html?id=${recipeId}" style="text-decoration: none; color: inherit;">${capitalize(data.name)}</a></h2>`;
+            html += `<h2><a href="../recipe-details/recipe-details.html?id=${recipeId}" style="text-decoration: none; color: inherit;">${capitalize(data.name)}</a></h2>`;
         }
 
         // Save Button
@@ -193,7 +193,7 @@ document.querySelector("#search-btn").addEventListener("click", async () => {
         errorDiv.style.display = 'block';
     } else {
         recipe.forEach((doc) => {
-            window.location.replace(`recipesearch.html?id=${doc.id}`);
+            window.location.replace(`../recipesearch/recipesearch.html?id=${doc.id}`);
         });
     }
 });

@@ -23,7 +23,7 @@ import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebas
 
             if (user) {
                 // User is signed in
-                userIcon.href = "User.html";
+                userIcon.href = "../user/User.html";
                 const userDoc = await getDocs(query(collection(db, "users"), where("email", "==", user.email)));
                 if (!userDoc.empty) {
                     const userData = userDoc.docs[0].data();
@@ -31,7 +31,7 @@ import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebas
                 }
             } else {
                 // User is signed out
-                userIcon.href = "Login.html";
+                userIcon.href = "../login/Login.html";
                 userText.textContent = "Login";
             }
         });
