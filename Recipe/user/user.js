@@ -60,7 +60,7 @@ onAuthStateChanged(auth, async (user) => {
                 savedRecipesGrid.innerHTML = '<p style="color: #666; text-align: center;">No saved recipes yet</p>';
             } else {
                 savedRecipesGrid.innerHTML = savedRecipes.map(recipe => `
-                    <a href="recipe-details.html?id=${recipe.id}" class="recipe-card">
+                    <a href="../recipesearch/recipesearch.html?id=${recipe.id}" class="recipe-card">
                         <div class="recipe-icon">
                             <i class="fas fa-utensils"></i>
                         </div>
@@ -89,7 +89,7 @@ onAuthStateChanged(auth, async (user) => {
                 addedRecipesGrid.innerHTML = '<p style="color: #666; text-align: center;">No recipes added yet</p>';
             } else {
                 addedRecipesGrid.innerHTML = addedRecipes.map(recipe => `
-                    <a href="recipe-details.html?id=${recipe.id}" class="recipe-card" style="text-decoration:none;">
+                    <a href="../recipe-details/recipe-details.html?id=${recipe.id}" class="recipe-card" style="text-decoration:none;">
                         <div class="recipe-icon">
                             <i class="fas fa-utensils"></i>
                         </div>
@@ -104,14 +104,14 @@ onAuthStateChanged(auth, async (user) => {
         }
     } else {
         // User is signed out, redirect to login
-        window.location.href = "Login.html";
+        window.location.href = "../login/Login.html";
     }
 });
 
 window.logout = async function() {
     try {
         await signOut(auth);
-        window.location.href = "Login.html";
+        window.location.href = "../login/Login.html";
     } catch (error) {
         console.error("Error signing out:", error);
     }

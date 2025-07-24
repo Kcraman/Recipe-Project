@@ -35,7 +35,7 @@ function toggleMenu() {
     const userIcon = document.getElementById('userIcon');
     const userText = document.getElementById('userText');
     if (user) {
-      userIcon.href = "User.html";
+      userIcon.href = "../user/User.html";
       const usersRef = collection(db, "users");
       const userDocs = await getDocs(usersRef);
       userDocs.forEach(doc => {
@@ -44,7 +44,7 @@ function toggleMenu() {
         }
       });
     } else {
-      userIcon.href = "Login.html";
+      userIcon.href = "../login/Login.html";
       userText.textContent = "Login";
     }
   });
@@ -71,7 +71,7 @@ function toggleMenu() {
           <div class="recipe-title">${data.name}</div>
           <div class="ingredient-list"><span>Used:</span> ${usedIngredients.length > 0 ? usedIngredients.join(', ') : 'None'}</div>
           <div class="ingredient-list"><span>Missed:</span> ${missedIngredients.length > 0 ? missedIngredients.join(', ') : 'None'}</div>
-          <button class="view-btn" onclick="window.location.href='recipesearch.html?id=${doc.id}'">View Recipe</button>
+          <button class="view-btn" onclick="window.location.href='../recipesearch/recipesearch.html?id=${doc.id}'">View Recipe</button>
         </div>`;
       }
     });

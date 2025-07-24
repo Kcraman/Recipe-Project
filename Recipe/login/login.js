@@ -60,7 +60,7 @@ document.getElementById('loginForm').addEventListener('submit', function (e) {
         .then((userCredential) => {
             showSuccess("Login successful! Redirecting to home page...");
             setTimeout(() => {
-                window.location.href = "home.html";
+                window.location.href = "../home/home.html";
             }, 2000);
         })
         .catch((error) => {
