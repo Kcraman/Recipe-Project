@@ -86,7 +86,7 @@ document.querySelector("#search-btn").addEventListener("click", async () => {
     const recipeName = doc.data().name.toLowerCase();
     if (recipeName.includes(searchValue)) {
       found = true;
-      window.location.href = `../recipe/Recipe.html?id=${doc.id}`;
+      window.location.href = `../recipesearch/recipesearch.html?id=${doc.id}`;
     }
   });
   if (!found) {
