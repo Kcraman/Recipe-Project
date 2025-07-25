@@ -94,6 +94,5 @@ import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebas
             localStorage.setItem('savedRecipes', JSON.stringify(savedRecipes));
             loadSavedRecipes();
         }
-
-        // Load saved recipes when the page loads
-        document.addEventListener('DOMContentLoaded', loadSavedRecipes);
+         // Load saved recipes when the page loads
+     document.addEventListener('DOMContentLoaded', loadSavedRecipes);

@@ -60,7 +60,7 @@ onAuthStateChanged(auth, async (user) => {
                 savedRecipesGrid.innerHTML = '<p style="color: #666; text-align: center;">No saved recipes yet</p>';
             } else {
                 savedRecipesGrid.innerHTML = savedRecipes.map(recipe => `
-                    <a href="../recipesearch/recipesearch.html?id=${recipe.id}" class="recipe-card">
+                    <a href="../recipe-details/recipe-details.html?id=${recipe.id}" class="recipe-card">
                         <div class="recipe-icon">
                             <i class="fas fa-utensils"></i>
                         </div>

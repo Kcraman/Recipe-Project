@@ -186,15 +186,18 @@ document.querySelector("#search-btn").addEventListener("click", async () => {
         return;
     }
     const recipesRef = collection(db, "Recipes");
-    const q = query(recipesRef, where("name", "==", input));
-    const recipe = await getDocs(q);
-    if (recipe.empty) {
+    const snapshot = await getDocs(recipesRef);
+    let found = false;
+    snapshot.forEach((docSnap) => {
+        const name = (docSnap.data().name || '').toLowerCase();
+        if (name.includes(input)) {
+            window.location.replace(`../recipesearch/recipesearch.html?id=${docSnap.id}`);
+            found = true;
+        }
+    });
+    if (!found) {
         errorDiv.textContent = 'No recipe found with that name.';
         errorDiv.style.display = 'block';
-    } else {
-        recipe.forEach((doc) => {
-            window.location.replace(`../recipesearch/recipesearch.html?id=${doc.id}`);
-        });
     }
 });
 window.toggleMenu = toggleMenu;
