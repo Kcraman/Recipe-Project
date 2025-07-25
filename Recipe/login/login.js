@@ -11,6 +11,7 @@ function togglePassword() {
         toggleButton.classList.add('fa-eye');
     }
 }
+window.togglePassword = togglePassword;
 //Firebase logic
 import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
 import { getAuth, signInWithEmailAndPassword } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";

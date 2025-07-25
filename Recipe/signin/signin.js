@@ -13,6 +13,21 @@ function togglePassword() {
     }
 }
 
+function toggleConfirmPassword() {
+    const confirmPasswordInput = document.getElementById('confirmPassword');
+    // Find the toggle button within the same password-container
+    const toggleButton = confirmPasswordInput.parentElement.querySelector('.password-toggle i');
+    if (confirmPasswordInput.type === 'password') {
+        confirmPasswordInput.type = 'text';
+        toggleButton.classList.remove('fa-eye');
+        toggleButton.classList.add('fa-eye-slash');
+    } else {
+        confirmPasswordInput.type = 'password';
+        toggleButton.classList.remove('fa-eye-slash');
+        toggleButton.classList.add('fa-eye');
+    }
+}
+
 import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
 import { getAnalytics } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-analytics.js";
 import { getAuth, createUserWithEmailAndPassword } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
@@ -58,6 +73,13 @@ document.getElementById('signupForm').addEventListener('submit', function (e) {
     const lastname = document.getElementById('lastname').value;
     const email = document.getElementById('email').value;
     const password = document.getElementById('password').value;
+    const confirmPassword = document.getElementById('confirmPassword').value;
+
+    // Validate password match
+    if (password !== confirmPassword) {
+        showError("Passwords do not match. Please re-enter.");
+        return;
+    }
 
     // Validate password strength
     if (password.length < 6) {
@@ -84,7 +106,7 @@ document.getElementById('signupForm').addEventListener('submit', function (e) {
 
         showSuccess("Account created successfully! Redirecting to login...");
         setTimeout(() => {
-            window.location.href = "Login.html";
+            window.location.href = "../login/Login.html";
         }, 2000);
     })
     .catch((error) => {
@@ -111,3 +133,4 @@ document.getElementById('signupForm').addEventListener('submit', function (e) {
     });
 });
 window.togglePassword = togglePassword;
+window.toggleConfirmPassword = toggleConfirmPassword;
