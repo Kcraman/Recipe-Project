@@ -1,5 +1,5 @@
 import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
-import { getFirestore, collection, getDocs, query, where } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+import { getFirestore, collection, getDocs, query, where, doc, setDoc, deleteDoc } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
 import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
 
 document.addEventListener('DOMContentLoaded', function() {
@@ -61,27 +61,35 @@ document.addEventListener('DOMContentLoaded', function() {
     const db = getFirestore(app);
     const auth = getAuth(app);
 
-    // Check authentication state
+    let userSavedRecipeIds = [];
+
     onAuthStateChanged(auth, async (user) => {
         const userIcon = document.getElementById('userIcon');
         const userText = document.getElementById('userText');
-
         if (user) {
-            // User is signed in
             userIcon.href = "../user/User.html";
             const userDoc = await getDocs(query(collection(db, "users"), where("email", "==", user.email)));
             if (!userDoc.empty) {
                 const userData = userDoc.docs[0].data();
                 userText.textContent = userData.firstname;
             }
+            // Fetch saved recipes for this user
+            userSavedRecipeIds = await fetchUserSavedRecipeIds(user.uid);
+            loadRecipes();
         } else {
-            // User is signed out
             userIcon.href = "../login/Login.html";
             userText.textContent = "Login";
+            userSavedRecipeIds = [];
+            loadRecipes();
         }
     });
 
-    // Load all recipes
+    async function fetchUserSavedRecipeIds(userId) {
+        const savedRecipesRef = collection(db, 'users', userId, 'savedRecipes');
+        const savedRecipesSnap = await getDocs(savedRecipesRef);
+        return savedRecipesSnap.docs.map(docSnap => docSnap.id);
+    }
+
     const categoryNav = document.getElementById('category-nav');
     const recipesRef = collection(db, "Recipes");
 
@@ -89,7 +97,6 @@ document.addEventListener('DOMContentLoaded', function() {
         try {
             const recipesSnapshot = await getDocs(recipesRef);
             if (!recipesSnapshot.empty) {
-                // Convert to array and sort alphabetically
                 const recipes = [];
                 recipesSnapshot.forEach((doc) => {
                     recipes.push({
@@ -97,10 +104,7 @@ document.addEventListener('DOMContentLoaded', function() {
                         ...doc.data()
                     });
                 });
-                console.log(`Fetched ${recipes.length} recipes from Firestore.`);
-                // Sort recipes alphabetically by name
                 recipes.sort((a, b) => a.name.localeCompare(b.name));
-                // Group recipes by first letter
                 const groupedRecipes = {};
                 recipes.forEach(recipe => {
                     const firstLetter = recipe.name.charAt(0).toUpperCase();
@@ -109,7 +113,7 @@ document.addEventListener('DOMContentLoaded', function() {
                     }
                     groupedRecipes[firstLetter].push(recipe);
                 });
-                // Create HTML for grouped recipes
+                categoryNav.innerHTML = '';
                 Object.keys(groupedRecipes).sort().forEach(letter => {
                     const categorySection = document.createElement('div');
                     categorySection.className = 'category-section';
@@ -117,8 +121,7 @@ document.addEventListener('DOMContentLoaded', function() {
                         <div class="category-header">${letter}</div>
                         <div class="recipe-list">
                             ${groupedRecipes[letter].map(recipe => {
-                                const savedRecipes = JSON.parse(localStorage.getItem('savedRecipes')) || [];
-                                const isSaved = savedRecipes.some(r => r.id === recipe.id);
+                                const isSaved = userSavedRecipeIds.includes(recipe.id);
                                 return `
                                     <div class="recipe-name" style="position: relative;">
                                         <button class="save-recipe-btn ${isSaved ? 'saved' : ''}" onclick="toggleSaveRecipe('${recipe.id}', '${recipe.name}')">
@@ -137,36 +140,45 @@ document.addEventListener('DOMContentLoaded', function() {
                 });
             } else {
                 categoryNav.innerHTML = '<p style="color: #F5E6C8; text-align: center;">No recipes found in the database.</p>';
-                console.warn('No recipes found in Firestore.');
             }
         } catch (error) {
             categoryNav.innerHTML = `<p style='color: red; text-align: center;'>Failed to load recipes: ${error.message}</p>`;
-            console.error('Error fetching recipes from Firestore:', error);
         }
     }
 
-    loadRecipes();
-
-    // Save recipe functionality
-    window.toggleSaveRecipe = function(recipeId, recipeName) {
+    window.toggleSaveRecipe = async function(recipeId, recipeName) {
         const saveBtn = event.currentTarget;
-        let savedRecipes = JSON.parse(localStorage.getItem('savedRecipes')) || [];
-        const isSaved = savedRecipes.some(r => r.id === recipeId);
-        if (isSaved) {
-            savedRecipes = savedRecipes.filter(r => r.id !== recipeId);
+        const saveErrorContainer = document.getElementById('saveErrorContainer');
+        saveErrorContainer.innerHTML = '';
+        const user = getAuth().currentUser;
+        if (!user) {
+            saveErrorContainer.innerHTML = `
+                <div class=\"simple-login-notification\">Please log in to save.</div>
+            `;
+            saveErrorContainer.style.display = 'block';
+            setTimeout(() => {
+                saveErrorContainer.style.display = 'none';
+                saveErrorContainer.innerHTML = '';
+            }, 5000);
+            return;
+        }
+        const recipeRef = doc(db, 'users', user.uid, 'savedRecipes', recipeId);
+        if (userSavedRecipeIds.includes(recipeId)) {
+            // Unsave
+            await deleteDoc(recipeRef);
             saveBtn.classList.remove('saved');
             saveBtn.innerHTML = '<i class="fas fa-bookmark"></i><span>Save</span>';
+            userSavedRecipeIds = userSavedRecipeIds.filter(id => id !== recipeId);
         } else {
-            savedRecipes.push({
-                id: recipeId,
-                title: recipeName,
-                cookingTime: '30 mins',
-                calories: '350 kcal'
+            // Save
+            await setDoc(recipeRef, {
+                name: recipeName,
+                savedAt: new Date()
             });
             saveBtn.classList.add('saved');
-            saveBtn.innerHTML = '<i class="fas fa-check"></i><span>Saved</span>';
+            saveBtn.innerHTML = '<i class=\"fas fa-check\"></i><span>Saved</span>';
+            userSavedRecipeIds.push(recipeId);
         }
-        localStorage.setItem('savedRecipes', JSON.stringify(savedRecipes));
     };
 
     // Sidebar toggle function

@@ -98,4 +98,60 @@ document.querySelector("#search-btn").addEventListener("click", async () => {
     }, 5000);
   }
 }); 
+
+// Ingredient-based search for recipes
+
+document.getElementById('find-recipes-btn').addEventListener('click', async () => {
+  const inputBox = document.getElementById('ingredient-input');
+  const errorContainer = document.getElementById('errorContainer');
+  const inputValue = inputBox.value.trim().toLowerCase();
+  if (!inputValue) {
+    inputBox.value = '';
+    inputBox.placeholder = 'Please enter ingredients';
+    inputBox.style.borderColor = '#dc3545';
+    inputBox.style.background = '#fff3f3';
+    inputBox.oninput = null;
+    inputBox.addEventListener('input', function handleInput() {
+      if (inputBox.value.trim() !== '') {
+        inputBox.style.borderColor = '';
+        inputBox.style.background = '';
+        inputBox.placeholder = 'Generate Recipes';
+        inputBox.removeEventListener('input', handleInput);
+      }
+    });
+    return;
+  }
+  // Split by comma or space, trim, and filter empty
+  const ingredients = inputValue.split(/,|\s+/).map(i => i.trim()).filter(i => i);
+  if (ingredients.length === 0) {
+    errorContainer.innerHTML = `<i class="fas fa-exclamation-circle"></i> Please enter at least one ingredient.`;
+    errorContainer.style.display = 'block';
+    setTimeout(() => { errorContainer.style.display = 'none'; }, 5000);
+    return;
+  }
+  const recipesRef = collection(db, 'Recipes');
+  const recipesSnapshot = await getDocs(recipesRef);
+  const matchingRecipeIds = [];
+  recipesSnapshot.forEach((doc) => {
+    const recipeData = doc.data();
+    const recipeIngredients = Array.isArray(recipeData.ingredients)
+      ? recipeData.ingredients.map(i => i.toLowerCase())
+      : (typeof recipeData.ingredients === 'string' ? [recipeData.ingredients.toLowerCase()] : []);
+    // Check if any of the entered ingredients are in the recipe's ingredients
+    if (ingredients.some(ing => recipeIngredients.includes(ing))) {
+      matchingRecipeIds.push(doc.id);
+    }
+  });
+  if (matchingRecipeIds.length > 0) {
+    // Store the IDs and input ingredients in sessionStorage and redirect
+    sessionStorage.setItem('ingredientSearchResults', JSON.stringify(matchingRecipeIds));
+    sessionStorage.setItem('ingredientSearchInput', JSON.stringify(ingredients));
+    window.location.href = '../recipesearch/recipesearch.html?ingredientSearch=1';
+  } else {
+    errorContainer.innerHTML = `<i class="fas fa-exclamation-circle"></i> No recipes found with those ingredients.`;
+    errorContainer.style.display = 'block';
+    setTimeout(() => { errorContainer.style.display = 'none'; }, 5000);
+  }
+});
+
 window.toggleMenu = toggleMenu;

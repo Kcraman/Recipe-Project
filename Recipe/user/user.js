@@ -25,7 +25,7 @@ document.addEventListener('click', function(event) {
 
 //Firebase logic
 import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
-import { getFirestore, collection, query, where, getDocs } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+import { getFirestore, collection, query, where, getDocs, doc, deleteDoc, setDoc } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
 import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
 
 const firebaseConfig = {
@@ -42,7 +42,8 @@ const app = initializeApp(firebaseConfig);
 const db = getFirestore(app);
 const auth = getAuth(app);
 
-// Check authentication state
+let userSavedRecipeIds = [];
+
 onAuthStateChanged(auth, async (user) => {
     if (user) {
         // User is signed in
@@ -51,39 +52,17 @@ onAuthStateChanged(auth, async (user) => {
             const userData = userDoc.docs[0].data();
             document.getElementById('userName').textContent = `${userData.firstname} ${userData.lastname}`;
             document.getElementById('userEmail').textContent = user.email;
-            
-            // Load saved recipes from localStorage
-            const savedRecipes = JSON.parse(localStorage.getItem('savedRecipes')) || [];
-            const savedRecipesGrid = document.getElementById('savedRecipesGrid');
-            
-            if (savedRecipes.length === 0) {
-                savedRecipesGrid.innerHTML = '<p style="color: #666; text-align: center;">No saved recipes yet</p>';
-            } else {
-                savedRecipesGrid.innerHTML = savedRecipes.map(recipe => `
-                    <a href="../recipe-details/recipe-details.html?id=${recipe.id}" class="recipe-card">
-                        <div class="recipe-icon">
-                            <i class="fas fa-utensils"></i>
-                        </div>
-                        <div class="recipe-info">
-                            <div class="recipe-name" style="color:#5B4B3A;text-decoration:none;">
-                                ${recipe.title.charAt(0).toUpperCase() + recipe.title.slice(1)}
-                            </div>
-                        </div>
-                        <span class="recipe-bookmark" onclick="toggleSaveRecipe(event, '${recipe.id}', '${encodeURIComponent(JSON.stringify(recipe))}')">
-                            <i class='fas fa-bookmark'></i>
-                        </span>
-                    </a>
-                `).join('');
-            }
-            
+
+            // Load saved recipes from Firestore
+            userSavedRecipeIds = await fetchUserSavedRecipeIds(user.uid);
+            loadSavedRecipes(user.uid);
+
             // Load user's added recipes
             const addedRecipesQuery = await getDocs(query(collection(db, "Recipes"), where("createdBy", "==", `${userData.firstname} ${userData.lastname}`)));
             const addedRecipes = addedRecipesQuery.docs.map(doc => ({
                 id: doc.id,
                 ...doc.data()
             }));
-            
-            // Load added recipes grid
             const addedRecipesGrid = document.getElementById('addedRecipesGrid');
             if (addedRecipes.length === 0) {
                 addedRecipesGrid.innerHTML = '<p style="color: #666; text-align: center;">No recipes added yet</p>';
@@ -108,6 +87,46 @@ onAuthStateChanged(auth, async (user) => {
     }
 });
 
+async function fetchUserSavedRecipeIds(userId) {
+    const savedRecipesRef = collection(db, 'users', userId, 'savedRecipes');
+    const savedRecipesSnap = await getDocs(savedRecipesRef);
+    return savedRecipesSnap.docs.map(docSnap => docSnap.id);
+}
+
+async function loadSavedRecipes(userId) {
+    const savedRecipesGrid = document.getElementById('savedRecipesGrid');
+    const savedRecipesRef = collection(db, 'users', userId, 'savedRecipes');
+    const savedRecipesSnap = await getDocs(savedRecipesRef);
+    const savedRecipes = [];
+    savedRecipesSnap.forEach(docSnap => {
+        const data = docSnap.data();
+        savedRecipes.push({
+            id: docSnap.id,
+            title: data.name || data.title || '',
+            ...data
+        });
+    });
+    if (savedRecipes.length === 0) {
+        savedRecipesGrid.innerHTML = '<p style="color: #666; text-align: center;">No saved recipes yet</p>';
+    } else {
+        savedRecipesGrid.innerHTML = savedRecipes.map(recipe => `
+            <a href="../recipe-details/recipe-details.html?id=${recipe.id}" class="recipe-card">
+                <div class="recipe-icon">
+                    <i class="fas fa-utensils"></i>
+                </div>
+                <div class="recipe-info">
+                    <div class="recipe-name" style="color:#5B4B3A;text-decoration:none;">
+                        ${recipe.title.charAt(0).toUpperCase() + recipe.title.slice(1)}
+                    </div>
+                </div>
+                <span class="recipe-bookmark" onclick="toggleSaveRecipe(event, '${recipe.id}', '${encodeURIComponent(JSON.stringify(recipe))}')">
+                    <i class='fas fa-bookmark'></i>
+                </span>
+            </a>
+        `).join('');
+    }
+}
+
 window.logout = async function() {
     try {
         await signOut(auth);
@@ -117,24 +136,28 @@ window.logout = async function() {
     }
 };
 
-window.toggleSaveRecipe = function(event, recipeId, recipeDataEncoded) {
+window.toggleSaveRecipe = async function(event, recipeId, recipeDataEncoded) {
     event.preventDefault();
     event.stopPropagation();
     const iconSpan = event.currentTarget;
-    let savedRecipes = JSON.parse(localStorage.getItem('savedRecipes')) || [];
-    const isSaved = iconSpan.querySelector('i.fas.fa-bookmark');
-    if (isSaved) {
-        // Unsave: change to outlined, remove from localStorage
-        savedRecipes = savedRecipes.filter(recipe => recipe.id !== recipeId);
-        localStorage.setItem('savedRecipes', JSON.stringify(savedRecipes));
-        iconSpan.innerHTML = `<img src=\"data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'><path d='M19 21l-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z' fill='none'/></svg>\" alt=\"Unsaved\" style=\"width: 20px; height: 20px; vertical-align: middle; cursor:pointer;\" />`;
+    const user = auth.currentUser;
+    if (!user) return;
+    const recipeRef = doc(db, 'users', user.uid, 'savedRecipes', recipeId);
+    if (userSavedRecipeIds.includes(recipeId)) {
+        // Unsave
+        await deleteDoc(recipeRef);
+        userSavedRecipeIds = userSavedRecipeIds.filter(id => id !== recipeId);
+        iconSpan.innerHTML = `<img src="data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'><path d='M19 21l-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z' fill='none'/></svg>" alt="Unsaved" style="width: 20px; height: 20px; vertical-align: middle; cursor:pointer;" />`;
         iconSpan.removeAttribute('title');
         iconSpan.onclick = function(e) { window.toggleSaveRecipe(e, recipeId, recipeDataEncoded); };
     } else {
-        // Save: change to filled, add to localStorage
+        // Save
         const recipeData = JSON.parse(decodeURIComponent(recipeDataEncoded));
-        savedRecipes.push(recipeData);
-        localStorage.setItem('savedRecipes', JSON.stringify(savedRecipes));
+        await setDoc(recipeRef, {
+            name: recipeData.title || recipeData.name,
+            savedAt: new Date()
+        });
+        userSavedRecipeIds.push(recipeId);
         iconSpan.innerHTML = `<i class='fas fa-bookmark'></i>`;
         iconSpan.removeAttribute('title');
         iconSpan.onclick = function(e) { window.toggleSaveRecipe(e, recipeId, recipeDataEncoded); };

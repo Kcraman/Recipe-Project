@@ -327,3 +327,18 @@ body, html {
     background-color: #218838;
     box-shadow: 0 4px 15px rgba(40, 167, 69, 0.3);
 }
+
+.simple-login-notification {
+    background: #bb6736;
+    color: #fff;
+    padding: 16px 32px;
+    border-radius: 8px;
+    font-size: 1.1rem;
+    font-family: 'Poppins', sans-serif;
+    box-shadow: 0 4px 15px rgba(0,0,0,0.12);
+    text-align: center;
+    max-width: 350px;
+    margin: 0 auto;
+    animation: fadeIn 0.5s;
+    letter-spacing: 0.5px;
+}

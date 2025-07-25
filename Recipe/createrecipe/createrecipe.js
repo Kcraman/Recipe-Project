@@ -85,6 +85,7 @@ onAuthStateChanged(auth, async (user) => {
             const userData = userDoc.docs[0].data();
             userText.textContent = userData.firstname;
         }
+      
 
         // Handle form submission
         recipeForm.addEventListener('submit', async (e) => {
@@ -128,13 +129,13 @@ onAuthStateChanged(auth, async (user) => {
         });
     } else {
         // User is signed out
-        userIcon.href = "Login.html";
+        userIcon.href = "../login/Login.html";
         userText.textContent = "Login";
         recipeForm.innerHTML = `
             <div class="login-message">
                 <i class="fas fa-lock"></i>
                 <p>Please log in to create and share your recipes with the community.</p>
-                <a href="Login.html">Log In Now</a>
+                <a href="../login/Login.html">Log In Now</a>
             </div>
         `;
     }

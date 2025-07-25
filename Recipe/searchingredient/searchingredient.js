@@ -65,13 +65,13 @@ function toggleMenu() {
       const recipeIngredients = (data.ingredients || []).map(i => i.toLowerCase());
       const usedIngredients = inputIngredients.filter(i => recipeIngredients.includes(i));
       const missedIngredients = recipeIngredients.filter(i => !inputIngredients.includes(i));
-      if (usedIngredients.length > 0) {
+      if (usedIngredients.length > 0 && missedIngredients.length < 5) {
         foundAny = true;
         html += `<div class="recipe-result" data-id="${doc.id}">
           <div class="recipe-title">${data.name}</div>
           <div class="ingredient-list"><span>Used:</span> ${usedIngredients.length > 0 ? usedIngredients.join(', ') : 'None'}</div>
           <div class="ingredient-list"><span>Missed:</span> ${missedIngredients.length > 0 ? missedIngredients.join(', ') : 'None'}</div>
-          <button class="view-btn" onclick="window.location.href='../recipesearch/recipesearch.html?id=${doc.id}'">View Recipe</button>
+          <button class="view-btn" onclick="window.location.href='../recipe-details/recipe-details.html?id=${doc.id}'">View Recipe</button>
         </div>`;
       }
     });

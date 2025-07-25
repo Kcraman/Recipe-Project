@@ -26,7 +26,7 @@ document.addEventListener('click', function(event) {
 
 
 import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
-import { getFirestore, doc, getDoc, collection, query, where, getDocs } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+import { getFirestore, doc, getDoc, collection, query, where, getDocs, setDoc, deleteDoc } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
 import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
 
 const firebaseConfig = {
@@ -43,53 +43,94 @@ const app = initializeApp(firebaseConfig);
 const db = getFirestore(app);
 const auth = getAuth(app);
 
-// Check authentication state
+let userSavedRecipeIds = [];
+
 onAuthStateChanged(auth, async (user) => {
     const userIcon = document.getElementById('userIcon');
     const userText = document.getElementById('userText');
-
     if (user) {
-        // User is signed in
         userIcon.href = "../user/User.html";
         const userDoc = await getDocs(query(collection(db, "users"), where("email", "==", user.email)));
         if (!userDoc.empty) {
             const userData = userDoc.docs[0].data();
             userText.textContent = userData.firstname;
         }
+        userSavedRecipeIds = await fetchUserSavedRecipeIds(user.uid);
+        renderRecipe();
     } else {
-        // User is signed out
         userIcon.href = "../login/Login.html";
         userText.textContent = "Login";
+        userSavedRecipeIds = [];
+        renderRecipe();
     }
 });
 
+async function fetchUserSavedRecipeIds(userId) {
+    const savedRecipesRef = collection(db, 'users', userId, 'savedRecipes');
+    const savedRecipesSnap = await getDocs(savedRecipesRef);
+    return savedRecipesSnap.docs.map(docSnap => docSnap.id);
+}
+
 const params = new URLSearchParams(window.location.search);
 const recipeId = params.get("id");
+const ingredientSearch = params.get("ingredientSearch");
 
-const container = document.getElementById("recipe-details");
+async function renderRecipesByIds(recipeIds) {
+    const container = document.getElementById("recipe-details");
+    if (!recipeIds || recipeIds.length === 0) {
+        container.innerHTML = '<p>No recipes found with those ingredients.</p>';
+        return;
+    }
+    // Get the user's input ingredients from sessionStorage (store them when searching)
+    let inputIngredients = sessionStorage.getItem('ingredientSearchInput');
+    inputIngredients = inputIngredients ? JSON.parse(inputIngredients) : [];
+    let html = '';
+    for (const id of recipeIds) {
+        const docRef = doc(db, "Recipes", id);
+        const docSnap = await getDoc(docRef);
+        if (docSnap.exists()) {
+            const data = docSnap.data();
+            const recipeIngredients = Array.isArray(data.ingredients)
+                ? data.ingredients.map(i => i.toLowerCase())
+                : (typeof data.ingredients === 'string' ? [data.ingredients.toLowerCase()] : []);
+            const usedIngredients = inputIngredients.filter(i => recipeIngredients.includes(i));
+            const missedIngredients = recipeIngredients.filter(i => !inputIngredients.includes(i));
+            html += `<div class="recipe-result" data-id="${id}">
+                <div class="recipe-title">${data.name ? capitalize(data.name) : 'Recipe'}</div>
+                <div class="ingredient-list"><span>Used:</span> ${usedIngredients.length > 0 ? usedIngredients.join(', ') : 'None'}</div>
+                <div class="ingredient-list"><span>Missed:</span> ${missedIngredients.length > 0 ? missedIngredients.join(', ') : 'None'}</div>
+                <button class="view-btn" onclick="window.location.href='../recipe-details/recipe-details.html?id=${id}'">View Recipe</button>
+            </div>`;
+        }
+    }
+    container.innerHTML = html;
+}
 
-if (recipeId) {
+if (ingredientSearch === '1') {
+    // Ingredient-based search result
+    const recipeIds = JSON.parse(sessionStorage.getItem('ingredientSearchResults') || '[]');
+    renderRecipesByIds(recipeIds);
+} else if (recipeId) {
+    renderRecipe();
+} else {
+    document.getElementById("recipe-details").innerHTML = "<p>No recipe selected.</p>";
+}
+
+async function renderRecipe() {
+    const container = document.getElementById("recipe-details");
     const docRef = doc(db, "Recipes", recipeId);
     const docSnap = await getDoc(docRef);
-
     if (docSnap.exists()) {
         const data = docSnap.data();
         let html = "";
-
-        // Recipe Title
         if (data.name) {
             html += `<h2><a href="../recipe-details/recipe-details.html?id=${recipeId}" style="text-decoration: none; color: inherit;">${capitalize(data.name)}</a></h2>`;
         }
-
-        // Save Button
-        const savedRecipes = JSON.parse(localStorage.getItem('savedRecipes')) || [];
-        const isSaved = savedRecipes.some(r => r.id === recipeId);
+        const isSaved = userSavedRecipeIds.includes(recipeId);
         html += `<button id="saveRecipeBtn" class="save-recipe-btn${isSaved ? ' saved' : ''}" style="margin-bottom:20px;float:right;">
             <i class="fas ${isSaved ? 'fa-check' : 'fa-bookmark'}"></i>
             <span>${isSaved ? 'Saved' : 'Save'}</span>
         </button>`;
-
-        // Ingredients Section
         if (data.ingredients) {
             html += `
                 <div class="recipe-section">
@@ -104,8 +145,6 @@ if (recipeId) {
             }
             html += `</ul></div>`;
         }
-
-        // Steps/Instructions Section
         if (data.steps || data.instructions) {
             const steps = data.steps || data.instructions;
             html += `
@@ -121,54 +160,44 @@ if (recipeId) {
             }
             html += `</ul></div>`;
         }
-
         container.innerHTML = html;
-
-        // Add save/unsave logic after rendering
         const saveBtn = document.getElementById('saveRecipeBtn');
         if (saveBtn) {
             saveBtn.onclick = async function() {
-                // Save to localStorage
-                let savedRecipes = JSON.parse(localStorage.getItem('savedRecipes')) || [];
-                const isSaved = savedRecipes.some(r => r.id === recipeId);
-                if (isSaved) {
-                    savedRecipes = savedRecipes.filter(r => r.id !== recipeId);
+                const saveErrorContainer = document.getElementById('saveErrorContainer');
+                saveErrorContainer.innerHTML = '';
+                const user = auth.currentUser;
+                if (!user) {
+                    saveErrorContainer.innerHTML = `<div class=\"simple-login-notification\">Please log in to save.</div>`;
+                    saveErrorContainer.style.display = 'block';
+                    setTimeout(() => {
+                        saveErrorContainer.style.display = 'none';
+                        saveErrorContainer.innerHTML = '';
+                    }, 5000);
+                    return;
+                }
+                const recipeRef = doc(db, 'users', user.uid, 'savedRecipes', recipeId);
+                if (userSavedRecipeIds.includes(recipeId)) {
+                    // Unsave
+                    await deleteDoc(recipeRef);
+                    userSavedRecipeIds = userSavedRecipeIds.filter(id => id !== recipeId);
                     saveBtn.classList.remove('saved');
                     saveBtn.innerHTML = '<i class="fas fa-bookmark"></i><span>Save</span>';
                 } else {
-                    savedRecipes.push({
-                        id: recipeId,
-                        title: data.name,
-                        cookingTime: data.cookingTime || '',
-                        calories: data.calories || ''
-                    });
-                    saveBtn.classList.add('saved');
-                    saveBtn.innerHTML = '<i class="fas fa-check"></i><span>Saved</span>';
-                }
-                localStorage.setItem('savedRecipes', JSON.stringify(savedRecipes));
-
-                // Save to Firestore under user's savedRecipes if logged in
-                const user = auth.currentUser;
-                if (!user) {
-                    alert('Please log in to save recipes.');
-                    return;
-                }
-                try {
-                    const { doc, setDoc, collection } = await import('https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js');
-                    await setDoc(doc(collection(db, 'users', user.uid, 'savedRecipes'), recipeId), {
-                        ...data,
+                    // Save
+                    await setDoc(recipeRef, {
+                        name: data.name,
                         savedAt: new Date()
                     });
-                } catch (e) {
-                    alert('Error saving recipe to your account.');
+                    userSavedRecipeIds.push(recipeId);
+                    saveBtn.classList.add('saved');
+                    saveBtn.innerHTML = '<i class="fas fa-check"></i><span>Saved</span>';
                 }
             };
         }
     } else {
         container.innerHTML = "<p>Recipe not found.</p>";
     }
-} else {
-    container.innerHTML = "<p>No recipe ID provided.</p>";
 }
 
 function capitalize(word) {
@@ -201,3 +230,14 @@ document.querySelector("#search-btn").addEventListener("click", async () => {
     }
 });
 window.toggleMenu = toggleMenu;
+
+// Set search bar placeholder and button text based on search type
+const searchBox = document.getElementById('search-box');
+const searchBtn = document.getElementById('search-btn');
+if (ingredientSearch === '1') {
+    searchBox.placeholder = 'Enter ingredients...';
+    searchBtn.innerHTML = '<i class="fas fa-search"></i> Search Ingredients';
+} else {
+    searchBox.placeholder = 'Enter recipe name...';
+    searchBtn.innerHTML = '<i class="fas fa-search"></i> Search';
+}

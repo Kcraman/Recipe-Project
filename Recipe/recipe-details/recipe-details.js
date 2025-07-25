@@ -1,150 +1,145 @@
 import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
-        import { getFirestore, doc, getDoc, collection, query, where, getDocs } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
-        import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
+import { getFirestore, doc, getDoc, collection, query, where, getDocs, setDoc, deleteDoc } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
 
-        const firebaseConfig = {
-            apiKey: "AIzaSyAYWtxU8MhK1BKgwrRViZ5GM9RyvVtAOfc",
-            authDomain: "recipe-finder-sign-in.firebaseapp.com",
-            projectId: "recipe-finder-sign-in",
-            storageBucket: "recipe-finder-sign-in.firebasestorage.app",
-            messagingSenderId: "883935562264",
-            appId: "1:883935562264:web:627cabc25e42c13f0ed16d",
-            measurementId: "G-G5YCPWNZDQ"
-        };
+const firebaseConfig = {
+    apiKey: "AIzaSyAYWtxU8MhK1BKgwrRViZ5GM9RyvVtAOfc",
+    authDomain: "recipe-finder-sign-in.firebaseapp.com",
+    projectId: "recipe-finder-sign-in",
+    storageBucket: "recipe-finder-sign-in.firebasestorage.app",
+    messagingSenderId: "883935562264",
+    appId: "1:883935562264:web:627cabc25e42c13f0ed16d",
+    measurementId: "G-G5YCPWNZDQ"
+};
 
-        const app = initializeApp(firebaseConfig);
-        const db = getFirestore(app);
-        const auth = getAuth(app);
+const app = initializeApp(firebaseConfig);
+const db = getFirestore(app);
+const auth = getAuth(app);
 
-        // Check authentication state
-        onAuthStateChanged(auth, async (user) => {
-            const userIcon = document.getElementById('userIcon');
-            const userText = document.getElementById('userText');
+let userSavedRecipeIds = [];
 
-            if (user) {
-                // User is signed in
-                userIcon.href = "../user/User.html";
-                const userDoc = await getDocs(query(collection(db, "users"), where("email", "==", user.email)));
-                if (!userDoc.empty) {
-                    const userData = userDoc.docs[0].data();
-                    userText.textContent = userData.firstname;
-                }
-            } else {
-                // User is signed out
-                userIcon.href = "../login/Login.html";
-                userText.textContent = "Login";
-            }
-        });
-
-        // Get recipe ID from URL
-        const urlParams = new URLSearchParams(window.location.search);
-        const recipeId = urlParams.get('id');
-
-        if (recipeId) {
-            const recipeRef = doc(db, "Recipes", recipeId);
-            const recipeSnap = await getDoc(recipeRef);
-
-            if (recipeSnap.exists()) {
-                const recipeData = recipeSnap.data();
-                
-                // Update recipe name with capitalized first letter
-                document.getElementById('recipeName').textContent = recipeData.name.charAt(0).toUpperCase() + recipeData.name.slice(1);
-
-                // Update ingredients
-                const ingredientsList = document.getElementById('ingredientsList');
-                if (recipeData.ingredients && Array.isArray(recipeData.ingredients)) {
-                    recipeData.ingredients.forEach(ingredient => {
-                        const li = document.createElement('li');
-                        li.innerHTML = `<i class="fas fa-check"></i> ${ingredient}`;
-                        ingredientsList.appendChild(li);
-                    });
-                } else {
-                    ingredientsList.innerHTML = '<li>No ingredients available</li>';
-                }
-
-                // Update instructions
-                const instructionsList = document.getElementById('instructionsList');
-                if (recipeData.instructions && Array.isArray(recipeData.instructions)) {
-                    recipeData.instructions.forEach(instruction => {
-                        const li = document.createElement('li');
-                        li.textContent = instruction;
-                        instructionsList.appendChild(li);
-                    });
-                } else {
-                    instructionsList.innerHTML = '<li>No instructions available</li>';
-                }
-
-                // Check if recipe is saved and update save button state
-                const savedRecipes = JSON.parse(localStorage.getItem('savedRecipes')) || [];
-                const isSaved = savedRecipes.some(r => r.id === recipeId);
-                const saveBtn = document.getElementById('saveRecipeBtn');
-                
-                if (isSaved) {
-                    saveBtn.classList.add('saved');
-                    saveBtn.innerHTML = '<i class="fas fa-check"></i><span>Saved</span>';
-                }
-            } else {
-                document.getElementById('recipeName').textContent = 'Recipe not found';
-            }
-        } else {
-            document.getElementById('recipeName').textContent = 'No recipe selected';
+onAuthStateChanged(auth, async (user) => {
+    const userIcon = document.getElementById('userIcon');
+    const userText = document.getElementById('userText');
+    if (user) {
+        userIcon.href = "../user/User.html";
+        const userDoc = await getDocs(query(collection(db, "users"), where("email", "==", user.email)));
+        if (!userDoc.empty) {
+            const userData = userDoc.docs[0].data();
+            userText.textContent = userData.firstname;
         }
-    
+        userSavedRecipeIds = await fetchUserSavedRecipeIds(user.uid);
+        renderRecipe();
+    } else {
+        userIcon.href = "../login/Login.html";
+        userText.textContent = "Login";
+        userSavedRecipeIds = [];
+        renderRecipe();
+    }
+});
 
-   
-        function toggleMenu() {
-            document.getElementById('sidebar').classList.toggle('active');
-        }
-        
-        document.querySelectorAll('.sidebar a').forEach(link => {
-            link.addEventListener('click', () => {
-                document.getElementById('sidebar').classList.remove('active');
+async function fetchUserSavedRecipeIds(userId) {
+    const savedRecipesRef = collection(db, 'users', userId, 'savedRecipes');
+    const savedRecipesSnap = await getDocs(savedRecipesRef);
+    return savedRecipesSnap.docs.map(docSnap => docSnap.id);
+}
+
+const urlParams = new URLSearchParams(window.location.search);
+const recipeId = urlParams.get('id');
+
+async function renderRecipe() {
+    const recipeRef = doc(db, "Recipes", recipeId);
+    const recipeSnap = await getDoc(recipeRef);
+    const saveBtn = document.getElementById('saveRecipeBtn');
+    if (recipeSnap.exists()) {
+        const recipeData = recipeSnap.data();
+        document.getElementById('recipeName').textContent = recipeData.name.charAt(0).toUpperCase() + recipeData.name.slice(1);
+        // ... (ingredients and instructions rendering unchanged) ...
+        const ingredientsList = document.getElementById('ingredientsList');
+        ingredientsList.innerHTML = '';
+        if (recipeData.ingredients && Array.isArray(recipeData.ingredients)) {
+            recipeData.ingredients.forEach(ingredient => {
+                const li = document.createElement('li');
+                li.innerHTML = `<i class="fas fa-check"></i> ${ingredient}`;
+                ingredientsList.appendChild(li);
             });
-        });
-
-        // Add click event listener to close sidebar when clicking outside
-        document.addEventListener('click', function(event) {
-            const sidebar = document.getElementById('sidebar');
-            const menuIcon = document.querySelector('.menu-icon');
-            
-            if (sidebar.classList.contains('active') && 
-                !sidebar.contains(event.target) && 
-                !menuIcon.contains(event.target)) {
-                sidebar.classList.remove('active');
-            }
-        });
-
-        // Save recipe functionality
-        function toggleSaveRecipe() {
-            const saveBtn = document.getElementById('saveRecipeBtn');
-            const recipeId = new URLSearchParams(window.location.search).get('id');
-            const recipeName = document.getElementById('recipeName').textContent;
-            
-            // Get existing saved recipes
-            let savedRecipes = JSON.parse(localStorage.getItem('savedRecipes')) || [];
-            
-            // Check if recipe is already saved
-            const isSaved = savedRecipes.some(r => r.id === recipeId);
-            
-            if (isSaved) {
-                // Remove from saved recipes
-                savedRecipes = savedRecipes.filter(r => r.id !== recipeId);
-                saveBtn.classList.remove('saved');
-                saveBtn.innerHTML = '<i class="fas fa-bookmark"></i><span>Save Recipe</span>';
-            } else {
-                // Add to saved recipes
-                savedRecipes.push({
-                    id: recipeId,
-                    title: recipeName,
-                    cookingTime: '30 mins', // You can update this with actual cooking time if available
-                    calories: '350 kcal'    // You can update this with actual calories if available
-                });
-                saveBtn.classList.add('saved');
-                saveBtn.innerHTML = '<i class="fas fa-check"></i><span>Saved</span>';
-            }
-            
-            // Update localStorage
-            localStorage.setItem('savedRecipes', JSON.stringify(savedRecipes));
+        } else {
+            ingredientsList.innerHTML = '<li>No ingredients available</li>';
         }
-        window.toggleMenu = toggleMenu;
-        window.toggleSaveRecipe = toggleSaveRecipe;
+        const instructionsList = document.getElementById('instructionsList');
+        instructionsList.innerHTML = '';
+        if (recipeData.instructions && Array.isArray(recipeData.instructions)) {
+            recipeData.instructions.forEach(instruction => {
+                const li = document.createElement('li');
+                li.textContent = instruction;
+                instructionsList.appendChild(li);
+            });
+        } else {
+            instructionsList.innerHTML = '<li>No instructions available</li>';
+        }
+        // Set save button state
+        if (userSavedRecipeIds.includes(recipeId)) {
+            saveBtn.classList.add('saved');
+            saveBtn.innerHTML = '<i class="fas fa-check"></i><span>Saved</span>';
+        } else {
+            saveBtn.classList.remove('saved');
+            saveBtn.innerHTML = '<i class="fas fa-bookmark"></i><span>Save Recipe</span>';
+        }
+    } else {
+        document.getElementById('recipeName').textContent = 'Recipe not found';
+    }
+}
+
+function toggleMenu() {
+    document.getElementById('sidebar').classList.toggle('active');
+}
+document.querySelectorAll('.sidebar a').forEach(link => {
+    link.addEventListener('click', () => {
+        document.getElementById('sidebar').classList.remove('active');
+    });
+});
+document.addEventListener('click', function(event) {
+    const sidebar = document.querySelector('.sidebar');
+    const menuIcon = document.querySelector('.menu-icon');
+    if (sidebar.classList.contains('active') && 
+        !sidebar.contains(event.target) && 
+        !menuIcon.contains(event.target)) {
+        sidebar.classList.remove('active');
+    }
+});
+
+window.toggleSaveRecipe = async function() {
+    const saveBtn = document.getElementById('saveRecipeBtn');
+    const recipeName = document.getElementById('recipeName').textContent;
+    const saveErrorContainer = document.getElementById('saveErrorContainer');
+    saveErrorContainer.innerHTML = '';
+    const user = getAuth().currentUser;
+    if (!user) {
+        saveErrorContainer.innerHTML = `<div class=\"simple-login-notification\">Please log in to save.</div>`;
+        saveErrorContainer.style.display = 'block';
+        setTimeout(() => {
+            saveErrorContainer.style.display = 'none';
+            saveErrorContainer.innerHTML = '';
+        }, 5000);
+        return;
+    }
+    const recipeRef = doc(db, 'users', user.uid, 'savedRecipes', recipeId);
+    if (userSavedRecipeIds.includes(recipeId)) {
+        // Unsave
+        await deleteDoc(recipeRef);
+        userSavedRecipeIds = userSavedRecipeIds.filter(id => id !== recipeId);
+        saveBtn.classList.remove('saved');
+        saveBtn.innerHTML = '<i class="fas fa-bookmark"></i><span>Save Recipe</span>';
+    } else {
+        // Save
+        await setDoc(recipeRef, {
+            name: recipeName,
+            savedAt: new Date()
+        });
+        userSavedRecipeIds.push(recipeId);
+        saveBtn.classList.add('saved');
+        saveBtn.innerHTML = '<i class="fas fa-check"></i><span>Saved</span>';
+    }
+};
+window.toggleMenu = toggleMenu;
+window.toggleSaveRecipe = window.toggleSaveRecipe;

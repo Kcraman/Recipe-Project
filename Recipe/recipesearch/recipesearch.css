@@ -336,3 +336,52 @@ button:hover {
     transform: scale(1.05);
     color: #fff;
 }
+
+.simple-login-notification {
+    background: #bb6736;
+    color: #fff;
+    padding: 16px 32px;
+    border-radius: 8px;
+    font-size: 1.1rem;
+    font-family: 'Poppins', sans-serif;
+    box-shadow: 0 4px 15px rgba(0,0,0,0.12);
+    text-align: center;
+    max-width: 350px;
+    margin: 0 auto;
+    animation: fadeIn 0.5s;
+    letter-spacing: 0.5px;
+}
+
+.ingredient-search-results {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 24px;
+  margin-top: 24px;
+}
+.ingredient-recipe-card {
+  background: #fff;
+  border-radius: 12px;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+  padding: 20px;
+  min-width: 260px;
+  max-width: 320px;
+  flex: 1 1 260px;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+}
+.ingredient-recipe-card h3 {
+  margin: 0 0 10px 0;
+  color: #5B4B3A;
+  font-size: 1.2rem;
+}
+.ingredient-recipe-card .view-details-link {
+  margin-top: 12px;
+  color: #bb6736;
+  text-decoration: underline;
+  font-weight: 500;
+  font-size: 1rem;
+}
+.ingredient-recipe-card .view-details-link:hover {
+  color: #5B4B3A;
+}
