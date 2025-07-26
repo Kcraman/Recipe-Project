@@ -7,11 +7,19 @@ function addIngredient() {
     const item = document.createElement('div');
     item.className = 'list-item';
     item.innerHTML = `
-        <input type="text" placeholder="Enter ingredient" required>
-        <button type="button" class="remove-btn" onclick="removeItem(this)">
+        <div class="ingredient-inputs">
+            <input type="text" placeholder="Enter ingredient" required>
+            <input type="text" placeholder="Quantity (e.g., 2 cups)" required>
+        </div>
+        <button type="button" class="remove-btn">
             <i class="fas fa-times"></i>
         </button>
     `;
+    
+    // Add event listener to the remove button
+    const removeBtn = item.querySelector('.remove-btn');
+    removeBtn.addEventListener('click', () => removeItem(removeBtn));
+    
     list.appendChild(item);
 }
 
@@ -20,11 +28,36 @@ function addInstruction() {
     const item = document.createElement('div');
     item.className = 'list-item';
     item.innerHTML = `
-        <input type="text" placeholder="Enter instruction step" required>
-        <button type="button" class="remove-btn" onclick="removeItem(this)">
+        <div class="instruction-inputs">
+            <input type="text" placeholder="Enter instruction step" required>
+            <div class="time-input-group">
+                <input type="number" min="0" placeholder="Min" class="time-input minutes" required>
+                <span class="time-separator">:</span>
+                <input type="number" min="0" max="59" placeholder="Sec" class="time-input seconds" required>
+            </div>
+        </div>
+        <button type="button" class="remove-btn">
             <i class="fas fa-times"></i>
         </button>
     `;
+    
+    // Add event listener to the remove button
+    const removeBtn = item.querySelector('.remove-btn');
+    removeBtn.addEventListener('click', () => removeItem(removeBtn));
+    
+    // Add input validation for time fields
+    const minutesInput = item.querySelector('.minutes');
+    const secondsInput = item.querySelector('.seconds');
+    
+    minutesInput.addEventListener('input', function() {
+        if (this.value < 0) this.value = 0;
+    });
+    
+    secondsInput.addEventListener('input', function() {
+        if (this.value < 0) this.value = 0;
+        if (this.value > 59) this.value = 59;
+    });
+    
     list.appendChild(item);
 }
 
@@ -85,15 +118,43 @@ onAuthStateChanged(auth, async (user) => {
             const userData = userDoc.docs[0].data();
             userText.textContent = userData.firstname;
         }
-      
 
         // Handle form submission
         recipeForm.addEventListener('submit', async (e) => {
             e.preventDefault();
 
             const recipeName = document.getElementById('recipeName').value;
-            const ingredients = Array.from(document.querySelectorAll('#ingredientsList input')).map(input => input.value);
-            const instructions = Array.from(document.querySelectorAll('#instructionsList input')).map(input => input.value);
+            
+            // Get ingredients with their quantities
+            const ingredientItems = document.querySelectorAll('#ingredientsList .list-item');
+            const ingredients = [];
+            const quantities = [];
+            
+            ingredientItems.forEach(item => {
+                const ingredientInputs = item.querySelectorAll('input');
+                if (ingredientInputs.length >= 2) {
+                    ingredients.push(ingredientInputs[0].value);
+                    quantities.push(ingredientInputs[1].value);
+                }
+            });
+            
+            // Get instructions with their times
+            const instructionItems = document.querySelectorAll('#instructionsList .list-item');
+            const instructions = [];
+            instructionItems.forEach(item => {
+                const instructionText = item.querySelector('input[type="text"]').value;
+                const minutes = parseInt(item.querySelector('.minutes').value) || 0;
+                const seconds = parseInt(item.querySelector('.seconds').value) || 0;
+                const totalSeconds = minutes * 60 + seconds;
+                
+                // Ensure minimum time of 10 seconds
+                const finalTime = Math.max(totalSeconds, 10);
+                
+                instructions.push({
+                    text: instructionText,
+                    time: finalTime
+                });
+            });
 
             try {
                 // Get user's name
@@ -109,6 +170,7 @@ onAuthStateChanged(auth, async (user) => {
                 await setDoc(doc(db, "Recipes", recipeId), {
                     name: recipeName,
                     ingredients: ingredients,
+                    quantities: quantities,
                     instructions: instructions,
                     createdBy: userName,
                     createdAt: new Date()
@@ -116,20 +178,35 @@ onAuthStateChanged(auth, async (user) => {
 
                 showSuccess("Recipe created successfully!");
                 recipeForm.reset();
-                // Clear all but first ingredient and instruction
-                while (document.querySelectorAll('#ingredientsList .list-item').length > 1) {
-                    document.querySelector('#ingredientsList .list-item:last-child').remove();
-                }
-                while (document.querySelectorAll('#instructionsList .list-item').length > 1) {
-                    document.querySelector('#instructionsList .list-item:last-child').remove();
-                }
+                        // Clear all but first ingredient and instruction
+        while (document.querySelectorAll('#ingredientsList .list-item').length > 1) {
+            document.querySelector('#ingredientsList .list-item:last-child').remove();
+        }
+        while (document.querySelectorAll('#instructionsList .list-item').length > 1) {
+            document.querySelector('#instructionsList .list-item:last-child').remove();
+        }
+        
+        // Add validation to the first instruction item
+        const firstMinutesInput = document.querySelector('#instructionsList .minutes');
+        const firstSecondsInput = document.querySelector('#instructionsList .seconds');
+        
+        if (firstMinutesInput && firstSecondsInput) {
+            firstMinutesInput.addEventListener('input', function() {
+                if (this.value < 0) this.value = 0;
+            });
+            
+            firstSecondsInput.addEventListener('input', function() {
+                if (this.value < 0) this.value = 0;
+                if (this.value > 59) this.value = 59;
+            });
+        }
             } catch (error) {
                 showError("Error creating recipe: " + error.message);
             }
         });
     } else {
         // User is signed out
-        userIcon.href = "../login/Login.html";
+        userIcon.href = "../loginLogin.html";
         userText.textContent = "Login";
         recipeForm.innerHTML = `
             <div class="login-message">
@@ -158,4 +235,52 @@ function showSuccess(message) {
         successContainer.style.display = 'none';
     }, 5000);
 }
+// Add event listeners when DOM is loaded
+document.addEventListener('DOMContentLoaded', function() {
+    // Add event listeners for add buttons
+    const addIngredientBtn = document.querySelector('#ingredientsList + .add-btn');
+    const addInstructionBtn = document.querySelector('#instructionsList + .add-btn');
+    
+    if (addIngredientBtn) {
+        addIngredientBtn.addEventListener('click', addIngredient);
+    }
+    
+    if (addInstructionBtn) {
+        addInstructionBtn.addEventListener('click', addInstruction);
+    }
+    
+    // Add event listener to the first ingredient's remove button
+    const firstIngredientRemoveBtn = document.querySelector('#ingredientsList .remove-btn');
+    if (firstIngredientRemoveBtn) {
+        firstIngredientRemoveBtn.removeAttribute('onclick');
+        firstIngredientRemoveBtn.addEventListener('click', () => removeItem(firstIngredientRemoveBtn));
+    }
+    
+    // Add event listener to the first instruction's remove button
+    const firstInstructionRemoveBtn = document.querySelector('#instructionsList .remove-btn');
+    if (firstInstructionRemoveBtn) {
+        firstInstructionRemoveBtn.removeAttribute('onclick');
+        firstInstructionRemoveBtn.addEventListener('click', () => removeItem(firstInstructionRemoveBtn));
+    }
+    
+    // Add validation to the first instruction item
+    const firstMinutesInput = document.querySelector('#instructionsList .minutes');
+    const firstSecondsInput = document.querySelector('#instructionsList .seconds');
+    
+    if (firstMinutesInput && firstSecondsInput) {
+        firstMinutesInput.addEventListener('input', function() {
+            if (this.value < 0) this.value = 0;
+        });
+        
+        firstSecondsInput.addEventListener('input', function() {
+            if (this.value < 0) this.value = 0;
+            if (this.value > 59) this.value = 59;
+        });
+    }
+});
+
+// Make functions available globally
 window.toggleMenu = toggleMenu;
+window.addIngredient = addIngredient;
+window.addInstruction = addInstruction;
+window.removeItem = removeItem;

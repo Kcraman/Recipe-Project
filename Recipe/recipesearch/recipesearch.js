@@ -137,8 +137,13 @@ async function renderRecipe() {
                     <h3><i class="fas fa-list"></i> Ingredients</h3>
                     <ul class="ingredients-list">`;
             if (Array.isArray(data.ingredients)) {
-                data.ingredients.forEach(ingredient => {
-                    html += `<li><i class="fas fa-check"></i> ${ingredient}</li>`;
+                data.ingredients.forEach((ingredient, index) => {
+                    // Check if quantities exist
+                    if (data.quantities && Array.isArray(data.quantities) && data.quantities[index]) {
+                        html += `<li><i class="fas fa-check"></i> ${ingredient} - ${data.quantities[index]}</li>`;
+                    } else {
+                        html += `<li><i class="fas fa-check"></i> ${ingredient}</li>`;
+                    }
                 });
             } else {
                 html += `<li><i class="fas fa-check"></i> ${data.ingredients}</li>`;

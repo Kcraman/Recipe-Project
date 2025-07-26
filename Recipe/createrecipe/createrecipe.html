@@ -62,13 +62,16 @@
                 <label>Ingredients</label>
                 <div id="ingredientsList" class="ingredients-list">
                     <div class="list-item">
-                        <input type="text" placeholder="Enter ingredient" required>
-                        <button type="button" class="remove-btn" onclick="removeItem(this)">
+                        <div class="ingredient-inputs">
+                            <input type="text" placeholder="Enter ingredient" required>
+                            <input type="text" placeholder="Quantity (e.g., 2 cups)" required>
+                        </div>
+                        <button type="button" class="remove-btn">
                             <i class="fas fa-times"></i>
                         </button>
                     </div>
                 </div>
-                <button type="button" class="add-btn" onclick="addIngredient()">
+                <button type="button" class="add-btn">
                     <i class="fas fa-plus"></i> Add Ingredient
                 </button>
             </div>
@@ -77,13 +80,20 @@
                 <label>Instructions</label>
                 <div id="instructionsList" class="instructions-list">
                     <div class="list-item">
-                        <input type="text" placeholder="Enter instruction step" required>
-                        <button type="button" class="remove-btn" onclick="removeItem(this)">
+                        <div class="instruction-inputs">
+                            <input type="text" placeholder="Enter instruction step" required>
+                            <div class="time-input-group">
+                                <input type="number" min="0" placeholder="Min" class="time-input minutes" required>
+                                <span class="time-separator">:</span>
+                                <input type="number" min="0" max="59" placeholder="Sec" class="time-input seconds" required>
+                            </div>
+                        </div>
+                        <button type="button" class="remove-btn">
                             <i class="fas fa-times"></i>
                         </button>
                     </div>
                 </div>
-                <button type="button" class="add-btn" onclick="addInstruction()">
+                <button type="button" class="add-btn">
                     <i class="fas fa-plus"></i> Add Step
                 </button>
             </div>

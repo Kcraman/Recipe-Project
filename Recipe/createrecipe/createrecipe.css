@@ -299,8 +299,60 @@ body, html {
     align-items: center;
 }
 
+.instruction-inputs {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+    flex: 1;
+}
+
+.ingredient-inputs {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+    flex: 1;
+}
+
+.ingredient-inputs input:first-child {
+    flex: 2;
+}
+
+.ingredient-inputs input:last-child {
+    flex: 1;
+}
+
 .list-item input {
     flex: 1;
+}
+
+.time-input-group {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    background: #f8f5f0;
+    padding: 8px 12px;
+    border-radius: 6px;
+    border: 1px solid #e0e0e0;
+}
+
+.time-input {
+    width: 60px;
+    text-align: center;
+    border: none;
+    background: transparent;
+    font-size: 14px;
+    color: #5d4037;
+}
+
+.time-input:focus {
+    outline: none;
+    background: rgba(187, 103, 54, 0.1);
+}
+
+.time-separator {
+    color: #5d4037;
+    font-weight: 600;
+    font-size: 16px;
 }
 
 .remove-btn {

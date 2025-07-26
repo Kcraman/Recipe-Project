@@ -328,6 +328,226 @@ body, html {
     box-shadow: 0 4px 15px rgba(40, 167, 69, 0.3);
 }
 
+/* Guide Controls Styles */
+.guide-controls {
+    display: flex;
+    gap: 15px;
+    margin-bottom: 20px;
+    flex-wrap: wrap;
+}
+
+.guide-btn {
+    padding: 12px 24px;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    font-weight: 500;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    transition: all 0.3s ease;
+    font-size: 14px;
+}
+
+.start-btn {
+    background-color: #28a745;
+    color: white;
+}
+
+.start-btn:hover {
+    background-color: #218838;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 15px rgba(40, 167, 69, 0.3);
+}
+
+.pause-btn {
+    background-color: #ffc107;
+    color: #212529;
+}
+
+.pause-btn:hover {
+    background-color: #e0a800;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 15px rgba(255, 193, 7, 0.3);
+}
+
+.finish-btn {
+    background-color: #dc3545;
+    color: white;
+}
+
+.finish-btn:hover {
+    background-color: #c82333;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 15px rgba(220, 53, 69, 0.3);
+}
+
+.resume-btn {
+    background-color: #17a2b8;
+    color: white;
+}
+
+.resume-btn:hover {
+    background-color: #138496;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 15px rgba(23, 162, 184, 0.3);
+}
+
+/* Timer Display Styles */
+.timer-display {
+    background: linear-gradient(135deg, #f8f5f0 0%, #e8e0d0 100%);
+    border-radius: 12px;
+    padding: 20px;
+    margin-bottom: 20px;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+    border: 2px solid #bb6736;
+}
+
+.current-step {
+    text-align: center;
+    margin-bottom: 15px;
+}
+
+.current-step span {
+    font-size: 18px;
+    font-weight: 600;
+    color: #5B4B3A;
+    background: rgba(187, 103, 54, 0.1);
+    padding: 8px 16px;
+    border-radius: 20px;
+}
+
+.timer {
+    text-align: center;
+    margin-bottom: 15px;
+}
+
+.timer span {
+    font-size: 32px;
+    font-weight: 700;
+    color: #bb6736;
+    font-family: 'Courier New', monospace;
+    text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.progress-bar {
+    width: 100%;
+    height: 8px;
+    background-color: #e0e0e0;
+    border-radius: 4px;
+    overflow: hidden;
+}
+
+.progress-fill {
+    height: 100%;
+    background: linear-gradient(90deg, #bb6736, #28a745);
+    width: 0%;
+    transition: width 0.3s ease;
+}
+
+/* Active instruction highlighting */
+.instructions-list li.active {
+    background-color: rgba(187, 103, 54, 0.1);
+    border-left: 4px solid #bb6736;
+    transform: scale(1.02);
+    transition: all 0.3s ease;
+}
+
+.instructions-list li.completed {
+    background-color: rgba(40, 167, 69, 0.1);
+    border-left: 4px solid #28a745;
+    opacity: 0.7;
+}
+
+.instruction-content {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    width: 100%;
+}
+
+.instruction-text {
+    flex: 1;
+}
+
+.instruction-time {
+    background: rgba(187, 103, 54, 0.1);
+    color: #bb6736;
+    padding: 4px 8px;
+    border-radius: 4px;
+    font-size: 12px;
+    font-weight: 600;
+    margin-left: 10px;
+    min-width: 50px;
+    text-align: center;
+}
+
+.ingredient-content {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    width: 100%;
+}
+
+.ingredient-name {
+    flex: 1;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.ingredient-quantity {
+    background: rgba(40, 167, 69, 0.1);
+    color: #28a745;
+    padding: 4px 8px;
+    border-radius: 4px;
+    font-size: 12px;
+    font-weight: 600;
+    margin-left: 10px;
+    min-width: 60px;
+    text-align: center;
+}
+
+/* Step Notification Styles */
+.step-notification {
+    position: fixed;
+    top: 100px;
+    right: 20px;
+    background: white;
+    color: #5B4B3A;
+    padding: 15px 20px;
+    border-radius: 8px;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font-weight: 500;
+    z-index: 10000;
+    transform: translateX(100%);
+    transition: transform 0.3s ease;
+    max-width: 300px;
+}
+
+.step-notification.show {
+    transform: translateX(0);
+}
+
+.step-notification.success {
+    border-left: 4px solid #28a745;
+}
+
+.step-notification.success i {
+    color: #28a745;
+}
+
+.step-notification.info {
+    border-left: 4px solid #17a2b8;
+}
+
+.step-notification.info i {
+    color: #17a2b8;
+}
+
 .simple-login-notification {
     background: #bb6736;
     color: #fff;
