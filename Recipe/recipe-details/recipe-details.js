@@ -81,6 +81,8 @@ async function renderRecipe() {
         }
         const instructionsList = document.getElementById('instructionsList');
         instructionsList.innerHTML = '';
+        let totalTime = 0;
+        
         if (recipeData.instructions && Array.isArray(recipeData.instructions)) {
             recipeData.instructions.forEach((instruction, index) => {
                 const li = document.createElement('li');
@@ -93,16 +95,22 @@ async function renderRecipe() {
                         </div>
                     `;
                     li.dataset.time = instruction.time;
+                    totalTime += instruction.time;
                 } else {
                     // Old format (just text)
                     li.textContent = instruction;
                     li.dataset.time = 60; // Default 1 minute for old recipes
+                    totalTime += 60;
                 }
                 li.dataset.step = index + 1;
                 instructionsList.appendChild(li);
             });
+            
+            // Display total time
+            document.getElementById('totalTimeDisplay').textContent = formatTime(totalTime);
         } else {
             instructionsList.innerHTML = '<li>No instructions available</li>';
+            document.getElementById('totalTimeDisplay').textContent = '00:00';
         }
         // Set save button state
         if (userSavedRecipeIds.includes(recipeId)) {
@@ -243,9 +251,22 @@ function startStep(stepIndex) {
     currentStep = stepIndex;
     const step = instructions[stepIndex];
     
-    // Update UI
-    document.getElementById('currentStepText').textContent = `Step ${step.step}`;
+    // Calculate cumulative time up to this step
+    let cumulativeTime = 0;
+    for (let i = 0; i < stepIndex; i++) {
+        cumulativeTime += instructions[i].time;
+    }
+    
+    // Update UI with step info and cumulative time
+    document.getElementById('currentStepText').textContent = `Step ${step.step} (${formatTime(cumulativeTime)} elapsed)`;
     document.getElementById('timerText').textContent = formatTime(step.time);
+    
+    // Calculate and display total remaining time
+    let totalRemaining = step.time;
+    for (let i = stepIndex + 1; i < instructions.length; i++) {
+        totalRemaining += instructions[i].time;
+    }
+    document.getElementById('totalRemainingText').textContent = formatTime(totalRemaining);
     
     // Highlight current step
     instructions.forEach((s, index) => {
@@ -275,8 +296,9 @@ function startStep(stepIndex) {
                 // Step completed
                 clearInterval(timer);
                 
-                // Show completion notification
-                showStepNotification(`Step ${step.step} completed!`, 'success');
+                // Show completion notification with cumulative time
+                const newCumulativeTime = cumulativeTime + step.time;
+                showStepNotification(`Step ${step.step} completed! (${formatTime(newCumulativeTime)} total)`, 'success');
                 
                 // Auto-advance to next step after 2 seconds
                 setTimeout(() => {
@@ -285,6 +307,13 @@ function startStep(stepIndex) {
             } else {
                 // Update timer display
                 document.getElementById('timerText').textContent = formatTime(remainingTime);
+                
+                // Calculate and update total remaining time
+                let totalRemaining = remainingTime;
+                for (let i = stepIndex + 1; i < instructions.length; i++) {
+                    totalRemaining += instructions[i].time;
+                }
+                document.getElementById('totalRemainingText').textContent = formatTime(totalRemaining);
                 
                 // Update progress bar
                 const progress = ((totalTime - remainingTime) / totalTime) * 100;

@@ -60,6 +60,12 @@
 
         <div class="recipe-section">
             <h3><i class="fas fa-tasks"></i> Instructions</h3>
+            <div class="total-time-display">
+                <div class="total-time-info">
+                    <i class="fas fa-clock"></i>
+                    <span>Total Cooking Time: <strong id="totalTimeDisplay">Calculating...</strong></span>
+                </div>
+            </div>
             <div class="guide-controls">
                 <button id="startGuideBtn" class="guide-btn start-btn">
                     <i class="fas fa-play"></i>
@@ -78,8 +84,15 @@
                 <div class="current-step">
                     <span id="currentStepText">Step 1</span>
                 </div>
-                <div class="timer">
-                    <span id="timerText">00:00</span>
+                <div class="timer-container">
+                    <div class="step-timer">
+                        <span class="timer-label">Step Time:</span>
+                        <span id="timerText">00:00</span>
+                    </div>
+                    <div class="total-remaining">
+                        <span class="timer-label">Total Remaining:</span>
+                        <span id="totalRemainingText">00:00</span>
+                    </div>
                 </div>
                 <div class="progress-bar">
                     <div id="progressFill" class="progress-fill"></div>

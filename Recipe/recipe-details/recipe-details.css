@@ -157,6 +157,34 @@ body, html {
     color: #bb6736;
 }
 
+.total-time-display {
+    background: rgba(187, 103, 54, 0.1);
+    border: 2px solid #bb6736;
+    border-radius: 8px;
+    padding: 15px;
+    margin-bottom: 20px;
+    text-align: center;
+}
+
+.total-time-info {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    color: #bb6736;
+    font-size: 16px;
+    font-weight: 600;
+}
+
+.total-time-info i {
+    font-size: 20px;
+}
+
+.total-time-info strong {
+    color: #8B4513;
+    font-size: 18px;
+}
+
 .ingredients-list {
     list-style: none;
     padding: 0;
@@ -417,13 +445,29 @@ body, html {
     border-radius: 20px;
 }
 
-.timer {
-    text-align: center;
-    margin-bottom: 15px;
+.timer-container {
+    display: flex;
+    justify-content: space-around;
+    align-items: center;
+    margin: 15px 0;
+    gap: 20px;
 }
 
-.timer span {
-    font-size: 32px;
+.step-timer, .total-remaining {
+    text-align: center;
+    flex: 1;
+}
+
+.timer-label {
+    display: block;
+    font-size: 0.9rem;
+    color: #5d4037;
+    margin-bottom: 5px;
+    font-weight: 600;
+}
+
+.timer span, .step-timer span:last-child, .total-remaining span:last-child {
+    font-size: 28px;
     font-weight: 700;
     color: #bb6736;
     font-family: 'Courier New', monospace;
@@ -471,15 +515,17 @@ body, html {
 }
 
 .instruction-time {
-    background: rgba(187, 103, 54, 0.1);
-    color: #bb6736;
-    padding: 4px 8px;
-    border-radius: 4px;
-    font-size: 12px;
-    font-weight: 600;
-    margin-left: 10px;
-    min-width: 50px;
+    background: linear-gradient(135deg, #bb6736, #8B4513);
+    color: white;
+    padding: 6px 12px;
+    border-radius: 20px;
+    font-size: 13px;
+    font-weight: 700;
+    margin-left: 15px;
+    min-width: 60px;
     text-align: center;
+    box-shadow: 0 2px 8px rgba(187, 103, 54, 0.3);
+    border: 1px solid rgba(255, 255, 255, 0.2);
 }
 
 .ingredient-content {

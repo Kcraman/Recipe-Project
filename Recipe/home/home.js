@@ -79,24 +79,10 @@ document.querySelector("#search-btn").addEventListener("click", async () => {
     });
     return;
   }
-  const recipesRef = collection(db, "Recipes");
-  const recipesSnapshot = await getDocs(recipesRef);
-  let found = false;
-  recipesSnapshot.forEach((doc) => {
-    const recipeName = doc.data().name.toLowerCase();
-    if (recipeName.includes(searchValue)) {
-      found = true;
-      window.location.href = `../recipesearch/recipesearch.html?id=${doc.id}`;
-    }
-  });
-  if (!found) {
-    const errorContainer = document.getElementById('errorContainer');
-    errorContainer.innerHTML = `<i class="fas fa-exclamation-circle"></i> Recipe "${searchValue}" not found.`;
-    errorContainer.style.display = 'block';
-    setTimeout(() => {
-      errorContainer.style.display = 'none';
-    }, 5000);
-  }
+  
+  // Store the search term in sessionStorage and redirect to search page
+  sessionStorage.setItem('recipeSearchTerm', searchValue);
+  window.location.href = '../recipesearch/recipesearch.html';
 }); 
 
 // Ingredient-based search for recipes
@@ -151,6 +137,21 @@ document.getElementById('find-recipes-btn').addEventListener('click', async () =
     errorContainer.innerHTML = `<i class="fas fa-exclamation-circle"></i> No recipes found with those ingredients.`;
     errorContainer.style.display = 'block';
     setTimeout(() => { errorContainer.style.display = 'none'; }, 5000);
+  }
+});
+
+// Add Enter key support for search boxes
+document.getElementById('inputbox1').addEventListener('keypress', function(event) {
+  if (event.key === 'Enter') {
+    event.preventDefault();
+    document.getElementById('search-btn').click();
+  }
+});
+
+document.getElementById('ingredient-input').addEventListener('keypress', function(event) {
+  if (event.key === 'Enter') {
+    event.preventDefault();
+    document.getElementById('find-recipes-btn').click();
   }
 });
 
