@@ -295,9 +295,6 @@ body, html {
 }
 
 .save-recipe-btn {
-    position: absolute;
-    top: 15px;
-    right: 15px;
     background-color: #5B4B3A;
     color: white;
     border: none;

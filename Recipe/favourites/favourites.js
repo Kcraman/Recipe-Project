@@ -38,7 +38,6 @@ onAuthStateChanged(auth, async (user) => {
         userText.textContent = "Login";
         favouriteRecipesGrid.innerHTML = `
             <div class="login-message">
-                <h2 class="favourite-recipes-title">Favourite Recipes</h2>
                 <i class="fas fa-heart"></i>
                 <p>Please Login to start favouriting Recipes.</p>
                 <a href="../login/Login.html">Log In Now</a>
