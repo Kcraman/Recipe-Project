@@ -17,6 +17,7 @@ const db = getFirestore(app);
 const auth = getAuth(app);
 
 let userSavedRecipeIds = [];
+let userFavouriteRecipeIds = [];
 
 onAuthStateChanged(auth, async (user) => {
     const userIcon = document.getElementById('userIcon');
@@ -29,11 +30,13 @@ onAuthStateChanged(auth, async (user) => {
             userText.textContent = userData.firstname;
         }
         userSavedRecipeIds = await fetchUserSavedRecipeIds(user.uid);
+        userFavouriteRecipeIds = await fetchUserFavouriteRecipeIds(user.uid);
         renderRecipe();
     } else {
         userIcon.href = "../login/Login.html";
         userText.textContent = "Login";
         userSavedRecipeIds = [];
+        userFavouriteRecipeIds = [];
         renderRecipe();
     }
 });
@@ -42,6 +45,12 @@ async function fetchUserSavedRecipeIds(userId) {
     const savedRecipesRef = collection(db, 'users', userId, 'savedRecipes');
     const savedRecipesSnap = await getDocs(savedRecipesRef);
     return savedRecipesSnap.docs.map(docSnap => docSnap.id);
+}
+
+async function fetchUserFavouriteRecipeIds(userId) {
+    const favouriteRecipesRef = collection(db, 'users', userId, 'favouriteRecipes');
+    const favouriteRecipesSnap = await getDocs(favouriteRecipesRef);
+    return favouriteRecipesSnap.docs.map(docSnap => docSnap.id);
 }
 
 const urlParams = new URLSearchParams(window.location.search);
@@ -120,6 +129,16 @@ async function renderRecipe() {
             saveBtn.classList.remove('saved');
             saveBtn.innerHTML = '<i class="fas fa-bookmark"></i><span>Save Recipe</span>';
         }
+
+        // Set favourite button state
+        const favouriteBtn = document.getElementById('favouriteRecipeBtn');
+        if (userFavouriteRecipeIds.includes(recipeId)) {
+            favouriteBtn.classList.add('favourited');
+            favouriteBtn.innerHTML = '<i class="fas fa-heart"></i><span>Favourited</span>';
+        } else {
+            favouriteBtn.classList.remove('favourited');
+            favouriteBtn.innerHTML = '<i class="fas fa-heart"></i><span>Favourite Recipe</span>';
+        }
     } else {
         document.getElementById('recipeName').textContent = 'Recipe not found';
     }
@@ -174,6 +193,40 @@ window.toggleSaveRecipe = async function() {
         userSavedRecipeIds.push(recipeId);
         saveBtn.classList.add('saved');
         saveBtn.innerHTML = '<i class="fas fa-check"></i><span>Saved</span>';
+    }
+};
+
+window.toggleFavouriteRecipe = async function() {
+    const favouriteBtn = document.getElementById('favouriteRecipeBtn');
+    const recipeName = document.getElementById('recipeName').textContent;
+    const saveErrorContainer = document.getElementById('saveErrorContainer');
+    saveErrorContainer.innerHTML = '';
+    const user = getAuth().currentUser;
+    if (!user) {
+        saveErrorContainer.innerHTML = `<div class=\"simple-login-notification\">Please log in to favourite.</div>`;
+        saveErrorContainer.style.display = 'block';
+        setTimeout(() => {
+            saveErrorContainer.style.display = 'none';
+            saveErrorContainer.innerHTML = '';
+        }, 5000);
+        return;
+    }
+    const recipeRef = doc(db, 'users', user.uid, 'favouriteRecipes', recipeId);
+    if (userFavouriteRecipeIds.includes(recipeId)) {
+        // Unfavourite
+        await deleteDoc(recipeRef);
+        userFavouriteRecipeIds = userFavouriteRecipeIds.filter(id => id !== recipeId);
+        favouriteBtn.classList.remove('favourited');
+        favouriteBtn.innerHTML = '<i class="fas fa-heart"></i><span>Favourite Recipe</span>';
+    } else {
+        // Favourite
+        await setDoc(recipeRef, {
+            name: recipeName,
+            favouritedAt: new Date()
+        });
+        userFavouriteRecipeIds.push(recipeId);
+        favouriteBtn.classList.add('favourited');
+        favouriteBtn.innerHTML = '<i class="fas fa-heart"></i><span>Favourited</span>';
     }
 };
 // Real-time Guide Variables

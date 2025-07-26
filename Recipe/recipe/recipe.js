@@ -62,6 +62,7 @@ document.addEventListener('DOMContentLoaded', function() {
     const auth = getAuth(app);
 
     let userSavedRecipeIds = [];
+    let userFavouriteRecipeIds = [];
 
     onAuthStateChanged(auth, async (user) => {
         const userIcon = document.getElementById('userIcon');
@@ -75,11 +76,14 @@ document.addEventListener('DOMContentLoaded', function() {
             }
             // Fetch saved recipes for this user
             userSavedRecipeIds = await fetchUserSavedRecipeIds(user.uid);
+            // Fetch favourite recipes for this user
+            userFavouriteRecipeIds = await fetchUserFavouriteRecipeIds(user.uid);
             loadRecipes();
         } else {
             userIcon.href = "../login/Login.html";
             userText.textContent = "Login";
             userSavedRecipeIds = [];
+            userFavouriteRecipeIds = [];
             loadRecipes();
         }
     });
@@ -88,6 +92,12 @@ document.addEventListener('DOMContentLoaded', function() {
         const savedRecipesRef = collection(db, 'users', userId, 'savedRecipes');
         const savedRecipesSnap = await getDocs(savedRecipesRef);
         return savedRecipesSnap.docs.map(docSnap => docSnap.id);
+    }
+
+    async function fetchUserFavouriteRecipeIds(userId) {
+        const favouriteRecipesRef = collection(db, 'users', userId, 'favouriteRecipes');
+        const favouriteRecipesSnap = await getDocs(favouriteRecipesRef);
+        return favouriteRecipesSnap.docs.map(docSnap => docSnap.id);
     }
 
     const categoryNav = document.getElementById('category-nav');
@@ -122,13 +132,20 @@ document.addEventListener('DOMContentLoaded', function() {
                         <div class="recipe-list">
                             ${groupedRecipes[letter].map(recipe => {
                                 const isSaved = userSavedRecipeIds.includes(recipe.id);
+                                const isFavourited = userFavouriteRecipeIds.includes(recipe.id);
                                 return `
                                     <div class="recipe-name" style="position: relative;">
-                                        <button class="save-recipe-btn ${isSaved ? 'saved' : ''}" onclick="toggleSaveRecipe('${recipe.id}', '${recipe.name}')">
-                                            <i class="fas ${isSaved ? 'fa-check' : 'fa-bookmark'}"></i>
-                                            <span>${isSaved ? 'Saved' : 'Save'}</span>
-                                        </button>
-                                        <a href="../recipe-details/recipe-details.html?id=${recipe.id}" style="text-decoration: none; color: inherit; display: block; padding-right: 120px;">
+                                        <div class="recipe-actions" style="position: absolute; right: 0; top: 50%; transform: translateY(-50%); display: flex; gap: 10px;">
+                                            <button class="save-recipe-btn ${isSaved ? 'saved' : ''}" onclick="toggleSaveRecipe('${recipe.id}', '${recipe.name}')">
+                                                <i class="fas ${isSaved ? 'fa-check' : 'fa-bookmark'}"></i>
+                                                <span>${isSaved ? 'Saved' : 'Save'}</span>
+                                            </button>
+                                            <button class="favourite-recipe-btn ${isFavourited ? 'favourited' : ''}" onclick="toggleFavouriteRecipe('${recipe.id}', '${recipe.name}')">
+                                                <i class="fas fa-heart"></i>
+                                                <span>${isFavourited ? 'Favourited' : 'Favourite'}</span>
+                                            </button>
+                                        </div>
+                                        <a href="../recipe-details/recipe-details.html?id=${recipe.id}" style="text-decoration: none; color: inherit; display: block; padding-right: 240px;">
                                             ${recipe.name.split(' ').map(word => word.charAt(0).toUpperCase() + word.slice(1)).join(' ')}
                                         </a>
                                     </div>
@@ -178,6 +195,41 @@ document.addEventListener('DOMContentLoaded', function() {
             saveBtn.classList.add('saved');
             saveBtn.innerHTML = '<i class=\"fas fa-check\"></i><span>Saved</span>';
             userSavedRecipeIds.push(recipeId);
+        }
+    };
+
+    window.toggleFavouriteRecipe = async function(recipeId, recipeName) {
+        const favouriteBtn = event.currentTarget;
+        const saveErrorContainer = document.getElementById('saveErrorContainer');
+        saveErrorContainer.innerHTML = '';
+        const user = getAuth().currentUser;
+        if (!user) {
+            saveErrorContainer.innerHTML = `
+                <div class=\"simple-login-notification\">Please log in to favourite.</div>
+            `;
+            saveErrorContainer.style.display = 'block';
+            setTimeout(() => {
+                saveErrorContainer.style.display = 'none';
+                saveErrorContainer.innerHTML = '';
+            }, 5000);
+            return;
+        }
+        const recipeRef = doc(db, 'users', user.uid, 'favouriteRecipes', recipeId);
+        if (userFavouriteRecipeIds.includes(recipeId)) {
+            // Unfavourite
+            await deleteDoc(recipeRef);
+            favouriteBtn.classList.remove('favourited');
+            favouriteBtn.innerHTML = '<i class="fas fa-heart"></i><span>Favourite</span>';
+            userFavouriteRecipeIds = userFavouriteRecipeIds.filter(id => id !== recipeId);
+        } else {
+            // Favourite
+            await setDoc(recipeRef, {
+                name: recipeName,
+                favouritedAt: new Date()
+            });
+            favouriteBtn.classList.add('favourited');
+            favouriteBtn.innerHTML = '<i class="fas fa-heart"></i><span>Favourited</span>';
+            userFavouriteRecipeIds.push(recipeId);
         }
     };
 

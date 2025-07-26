@@ -1,10 +1,10 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <title>Saved Recipes</title>
+    <title>Favourite Recipes</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="saved.css">
+    <link rel="stylesheet" href="favourites.css">
 </head>
 <body>
     <div class="overlay"></div>
@@ -31,8 +31,8 @@
             <a href="../home/home.html">Home</a>
             <a href="../recipe/Recipe.html">Recipes</a>
             <a href="../searchingredient/search-ingredient.html">Search Ingredients</a>
-            <a href="saved.html" class="active">Saved</a>
-            <a href="../favourites/favourites.html">Favourites</a>
+            <a href="../saved/saved.html">Saved</a>
+            <a href="favourites.html" class="active">Favourites</a>
             <a href="../createrecipe/createrecipe.html">Add Recipe</a>
         </div>
         <div class="bottom-link">
@@ -40,16 +40,16 @@
         </div>
     </div>
 
-    <div class="saved-recipes-container">
+    <div class="favourite-recipes-container">
         <a href="javascript:history.back()" class="back-btn">
             <i class="fas fa-arrow-left"></i>
             <span>Back</span>
         </a>
-        <div class="saved-recipes-grid" id="savedRecipesGrid">
-            <!-- Saved recipes will be dynamically added here -->
+        <div class="favourite-recipes-grid" id="favouriteRecipesGrid">
+            <!-- Favourite recipes will be dynamically added here -->
         </div>
     </div>
 
-    <script type="module" src="saved.js"></script>
+    <script type="module" src="favourites.js"></script>
 </body>
 </html>

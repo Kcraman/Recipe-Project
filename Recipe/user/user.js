@@ -43,6 +43,7 @@ const db = getFirestore(app);
 const auth = getAuth(app);
 
 let userSavedRecipeIds = [];
+let userFavouriteRecipeIds = [];
 
 onAuthStateChanged(auth, async (user) => {
     if (user) {
@@ -56,6 +57,10 @@ onAuthStateChanged(auth, async (user) => {
             // Load saved recipes from Firestore
             userSavedRecipeIds = await fetchUserSavedRecipeIds(user.uid);
             loadSavedRecipes(user.uid);
+
+            // Load favourite recipes from Firestore
+            userFavouriteRecipeIds = await fetchUserFavouriteRecipeIds(user.uid);
+            loadFavouriteRecipes(user.uid);
 
             // Load user's added recipes
             const addedRecipesQuery = await getDocs(query(collection(db, "Recipes"), where("createdBy", "==", `${userData.firstname} ${userData.lastname}`)));
@@ -93,6 +98,12 @@ async function fetchUserSavedRecipeIds(userId) {
     return savedRecipesSnap.docs.map(docSnap => docSnap.id);
 }
 
+async function fetchUserFavouriteRecipeIds(userId) {
+    const favouriteRecipesRef = collection(db, 'users', userId, 'favouriteRecipes');
+    const favouriteRecipesSnap = await getDocs(favouriteRecipesRef);
+    return favouriteRecipesSnap.docs.map(docSnap => docSnap.id);
+}
+
 async function loadSavedRecipes(userId) {
     const savedRecipesGrid = document.getElementById('savedRecipesGrid');
     const savedRecipesRef = collection(db, 'users', userId, 'savedRecipes');
@@ -121,6 +132,40 @@ async function loadSavedRecipes(userId) {
                 </div>
                 <span class="recipe-bookmark" onclick="toggleSaveRecipe(event, '${recipe.id}', '${encodeURIComponent(JSON.stringify(recipe))}')">
                     <i class='fas fa-bookmark'></i>
+                </span>
+            </a>
+        `).join('');
+    }
+}
+
+async function loadFavouriteRecipes(userId) {
+    const favouriteRecipesGrid = document.getElementById('favoriteRecipesGrid');
+    const favouriteRecipesRef = collection(db, 'users', userId, 'favouriteRecipes');
+    const favouriteRecipesSnap = await getDocs(favouriteRecipesRef);
+    const favouriteRecipes = [];
+    favouriteRecipesSnap.forEach(docSnap => {
+        const data = docSnap.data();
+        favouriteRecipes.push({
+            id: docSnap.id,
+            title: data.name || data.title || '',
+            ...data
+        });
+    });
+    if (favouriteRecipes.length === 0) {
+        favouriteRecipesGrid.innerHTML = '<p style="color: #666; text-align: center;">No favourite recipes yet</p>';
+    } else {
+        favouriteRecipesGrid.innerHTML = favouriteRecipes.map(recipe => `
+            <a href="../recipe-details/recipe-details.html?id=${recipe.id}" class="recipe-card">
+                <div class="recipe-icon">
+                    <i class="fas fa-utensils"></i>
+                </div>
+                <div class="recipe-info">
+                    <div class="recipe-name" style="color:#5B4B3A;text-decoration:none;">
+                        ${recipe.title.charAt(0).toUpperCase() + recipe.title.slice(1)}
+                    </div>
+                </div>
+                <span class="recipe-heart" onclick="toggleFavouriteRecipe(event, '${recipe.id}', '${encodeURIComponent(JSON.stringify(recipe))}')">
+                    <i class='fas fa-heart'></i>
                 </span>
             </a>
         `).join('');
@@ -163,4 +208,33 @@ window.toggleSaveRecipe = async function(event, recipeId, recipeDataEncoded) {
         iconSpan.onclick = function(e) { window.toggleSaveRecipe(e, recipeId, recipeDataEncoded); };
     }
 }
+
+window.toggleFavouriteRecipe = async function(event, recipeId, recipeDataEncoded) {
+    event.preventDefault();
+    event.stopPropagation();
+    const iconSpan = event.currentTarget;
+    const user = auth.currentUser;
+    if (!user) return;
+    const recipeRef = doc(db, 'users', user.uid, 'favouriteRecipes', recipeId);
+    if (userFavouriteRecipeIds.includes(recipeId)) {
+        // Unfavourite
+        await deleteDoc(recipeRef);
+        userFavouriteRecipeIds = userFavouriteRecipeIds.filter(id => id !== recipeId);
+        iconSpan.innerHTML = `<i class='far fa-heart'></i>`;
+        iconSpan.removeAttribute('title');
+        iconSpan.onclick = function(e) { window.toggleFavouriteRecipe(e, recipeId, recipeDataEncoded); };
+    } else {
+        // Favourite
+        const recipeData = JSON.parse(decodeURIComponent(recipeDataEncoded));
+        await setDoc(recipeRef, {
+            name: recipeData.title || recipeData.name,
+            favouritedAt: new Date()
+        });
+        userFavouriteRecipeIds.push(recipeId);
+        iconSpan.innerHTML = `<i class='fas fa-heart'></i>`;
+        iconSpan.removeAttribute('title');
+        iconSpan.onclick = function(e) { window.toggleFavouriteRecipe(e, recipeId, recipeDataEncoded); };
+    }
+}
+
 window.toggleMenu = toggleMenu;

@@ -36,7 +36,7 @@
             <a href="../recipe/Recipe.html">Recipes</a>
             <a href="../searchingredient/search-ingredient.html">Search Ingredients</a>
             <a href="../saved/saved.html">Saved</a>
-            <a href="#">Favourites</a>
+            <a href="../favourites/favourites.html">Favourites</a>
             <a href="../createrecipe/createrecipe.html">Add Recipe</a>
         </div>
         <div class="bottom-link">
@@ -103,10 +103,16 @@
             </ul>
         </div>
 
-        <button id="saveRecipeBtn" class="save-recipe-btn" onclick="toggleSaveRecipe()">
-            <i class="fas fa-bookmark"></i>
-            <span>Save Recipe</span>
-        </button>
+        <div class="recipe-actions">
+            <button id="saveRecipeBtn" class="save-recipe-btn" onclick="toggleSaveRecipe()">
+                <i class="fas fa-bookmark"></i>
+                <span>Save Recipe</span>
+            </button>
+            <button id="favouriteRecipeBtn" class="favourite-recipe-btn" onclick="toggleFavouriteRecipe()">
+                <i class="fas fa-heart"></i>
+                <span>Favourite Recipe</span>
+            </button>
+        </div>
     </div>
 
     <script type="module" src="recipe-details.js"></script>

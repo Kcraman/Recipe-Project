@@ -328,6 +328,37 @@ body, html {
     box-shadow: 0 4px 15px rgba(40, 167, 69, 0.3);
 }
 
+.favourite-recipe-btn {
+    background-color: #e74c3c;
+    color: white;
+    border: none;
+    padding: 8px 15px;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 14px;
+    font-weight: 500;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+.favourite-recipe-btn:hover {
+    background-color: #c0392b;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 15px rgba(231, 76, 60, 0.3);
+}
+
+.favourite-recipe-btn.favourited {
+    background-color: #e74c3c;
+}
+
+.favourite-recipe-btn.favourited:hover {
+    background-color: #c0392b;
+    box-shadow: 0 4px 15px rgba(231, 76, 60, 0.3);
+}
+
 .simple-login-notification {
     background: #bb6736;
     color: #fff;

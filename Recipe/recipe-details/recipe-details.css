@@ -323,11 +323,32 @@ body, html {
     box-shadow: 0 4px 15px rgba(91, 75, 58, 0.2);
 }
 
-.save-recipe-btn {
+.recipe-actions {
     position: absolute;
     top: 20px;
     right: 20px;
+    display: flex;
+    gap: 15px;
+    align-items: center;
+}
+
+.save-recipe-btn {
     background-color: #5B4B3A;
+    color: white;
+    border: none;
+    padding: 12px 25px;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-weight: 500;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+.favourite-recipe-btn {
+    background-color: #e74c3c;
     color: white;
     border: none;
     padding: 12px 25px;
@@ -354,6 +375,21 @@ body, html {
 .save-recipe-btn.saved:hover {
     background-color: #218838;
     box-shadow: 0 4px 15px rgba(40, 167, 69, 0.3);
+}
+
+.favourite-recipe-btn:hover {
+    background-color: #c0392b;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 15px rgba(231, 76, 60, 0.3);
+}
+
+.favourite-recipe-btn.favourited {
+    background-color: #e74c3c;
+}
+
+.favourite-recipe-btn.favourited:hover {
+    background-color: #c0392b;
+    box-shadow: 0 4px 15px rgba(231, 76, 60, 0.3);
 }
 
 /* Guide Controls Styles */
