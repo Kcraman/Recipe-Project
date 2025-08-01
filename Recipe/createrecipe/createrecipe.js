@@ -160,19 +160,26 @@ onAuthStateChanged(auth, async (user) => {
                 // Get user's name
                 const userDoc = await getDocs(query(collection(db, "users"), where("email", "==", user.email)));
                 let userName = "Unknown User";
+                let userFirstname = "Unknown";
                 if (!userDoc.empty) {
                     const userData = userDoc.docs[0].data();
                     userName = `${userData.firstname} ${userData.lastname}`;
+                    userFirstname = userData.firstname;
                 }
 
+                // Append user's firstname to recipe name
+                const recipeNameWithUser = `${recipeName} (${userFirstname})`;
+
                 // Create document with recipe name as ID
-                const recipeId = recipeName.toLowerCase().replace(/\s+/g, '-');
+                const recipeId = recipeNameWithUser.toLowerCase().replace(/\s+/g, '-').replace(/[()]/g, '');
                 await setDoc(doc(db, "Recipes", recipeId), {
-                    name: recipeName,
+                    name: recipeNameWithUser,
+                    originalName: recipeName,
                     ingredients: ingredients,
                     quantities: quantities,
                     instructions: instructions,
                     createdBy: userName,
+                    createdByEmail: user.email,
                     createdAt: new Date()
                 });
 

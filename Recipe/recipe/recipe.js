@@ -1,21 +1,8 @@
 import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
 import { getFirestore, collection, getDocs, query, where, doc, setDoc, deleteDoc } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
-import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
+import { getAuth, onAuthStateChanged, signInWithEmailAndPassword } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
 
 document.addEventListener('DOMContentLoaded', function() {
-    // Debug message to confirm script is running
-    const debugBanner = document.createElement('div');
-    debugBanner.textContent = 'Recipe JS loaded';
-    debugBanner.style.position = 'fixed';
-    debugBanner.style.bottom = '10px';
-    debugBanner.style.right = '10px';
-    debugBanner.style.background = 'rgba(0,0,0,0.7)';
-    debugBanner.style.color = 'white';
-    debugBanner.style.padding = '6px 12px';
-    debugBanner.style.borderRadius = '6px';
-    debugBanner.style.zIndex = '9999';
-    document.body.appendChild(debugBanner);
-    setTimeout(() => debugBanner.remove(), 3000);
 
     // Add event listener for hamburger menu
     const menuIcon = document.querySelector('.menu-icon');
@@ -171,6 +158,7 @@ document.addEventListener('DOMContentLoaded', function() {
                     ${groupedRecipes[letter].map(recipe => {
                         const isSaved = userSavedRecipeIds.includes(recipe.id);
                         const isFavourited = userFavouriteRecipeIds.includes(recipe.id);
+                        const isCreator = recipe.createdByEmail && recipe.createdByEmail === auth.currentUser?.email;
                         return `
                             <div class="recipe-name" style="position: relative;">
                                 <div class="recipe-actions" style="position: absolute; right: 0; top: 50%; transform: translateY(-50%); display: flex; gap: 10px;">
@@ -182,8 +170,14 @@ document.addEventListener('DOMContentLoaded', function() {
                                         <i class="fas fa-heart"></i>
                                         <span>${isFavourited ? 'Favourited' : 'Favourite'}</span>
                                     </button>
+                                    ${isCreator ? `
+                                        <button class="delete-recipe-btn" onclick="showDeleteConfirmation('${recipe.id}', '${recipe.name}')" style="background: #dc3545; color: white; border: none; border-radius: 20px; padding: 8px 16px; font-size: 12px; font-weight: 600; cursor: pointer; transition: all 0.3s ease; display: flex; align-items: center; gap: 5px;">
+                                            <i class="fas fa-trash"></i>
+                                            <span>Delete</span>
+                                        </button>
+                                    ` : ''}
                                 </div>
-                                <a href="../recipe-details/recipe-details.html?id=${recipe.id}" style="text-decoration: none; color: inherit; display: block; padding-right: 240px;">
+                                <a href="../recipe-details/recipe-details.html?id=${recipe.id}" style="text-decoration: none; color: inherit; display: block; padding-right: ${isCreator ? '320px' : '240px'};">
                                     ${recipe.name.split(' ').map(word => word.charAt(0).toUpperCase() + word.slice(1)).join(' ')}
                                 </a>
                             </div>
@@ -384,6 +378,123 @@ document.addEventListener('DOMContentLoaded', function() {
             favouriteBtn.innerHTML = '<i class="fas fa-heart"></i><span>Favourited</span>';
             userFavouriteRecipeIds.push(recipeId);
         }
+    };
+
+    // Delete recipe functionality
+    window.showDeleteConfirmation = function(recipeId, recipeName) {
+        // Create modal
+        const modal = document.createElement('div');
+        modal.style.cssText = `
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.7);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 10000;
+        `;
+        
+        modal.innerHTML = `
+            <div style="background: white; padding: 30px; border-radius: 15px; max-width: 400px; width: 90%; text-align: center;">
+                <h3 style="color: #dc3545; margin-bottom: 20px;">
+                    <i class="fas fa-exclamation-triangle"></i> Delete Recipe
+                </h3>
+                <p style="margin-bottom: 20px; color: #666;">
+                    Are you sure you want to delete "<strong>${recipeName}</strong>"?<br>
+                    This action cannot be undone.
+                </p>
+                <div style="margin-bottom: 20px;">
+                    <label style="display: block; margin-bottom: 10px; color: #5B4B3A; font-weight: 600;">
+                        Enter your password to confirm:
+                    </label>
+                    <input type="password" id="deletePassword" placeholder="Enter password" 
+                           style="width: 100%; padding: 12px; border: 2px solid #e0e0e0; border-radius: 8px; font-size: 16px;">
+                </div>
+                <div id="deleteError" style="color: #dc3545; margin-bottom: 15px; display: none;"></div>
+                <div style="display: flex; gap: 10px; justify-content: center;">
+                    <button id="confirmDelete" style="background: #dc3545; color: white; border: none; padding: 12px 24px; border-radius: 8px; font-size: 16px; font-weight: 600; cursor: pointer;">
+                        Delete Recipe
+                    </button>
+                    <button id="cancelDelete" style="background: #6c757d; color: white; border: none; padding: 12px 24px; border-radius: 8px; font-size: 16px; font-weight: 600; cursor: pointer;">
+                        Cancel
+                    </button>
+                </div>
+            </div>
+        `;
+        
+        document.body.appendChild(modal);
+        
+        // Add event listeners
+        const confirmBtn = modal.querySelector('#confirmDelete');
+        const cancelBtn = modal.querySelector('#cancelDelete');
+        const passwordInput = modal.querySelector('#deletePassword');
+        const errorDiv = modal.querySelector('#deleteError');
+        
+        cancelBtn.onclick = () => {
+            document.body.removeChild(modal);
+        };
+        
+        confirmBtn.onclick = async () => {
+            const password = passwordInput.value.trim();
+            if (!password) {
+                errorDiv.textContent = 'Please enter your password.';
+                errorDiv.style.display = 'block';
+                return;
+            }
+            
+            try {
+                const user = auth.currentUser;
+                if (!user) {
+                    errorDiv.textContent = 'You must be logged in to delete recipes.';
+                    errorDiv.style.display = 'block';
+                    return;
+                }
+                
+                // Verify password
+                await signInWithEmailAndPassword(auth, user.email, password);
+                
+                // Delete the recipe
+                await deleteDoc(doc(db, 'Recipes', recipeId));
+                
+                // Show success message
+                const saveErrorContainer = document.getElementById('saveErrorContainer');
+                saveErrorContainer.innerHTML = `
+                    <div style="background: #28a745; color: #fff; padding: 16px 32px; border-radius: 8px; font-size: 1.1rem; font-family: 'Poppins', sans-serif; box-shadow: 0 4px 15px rgba(0,0,0,0.12); text-align: center; max-width: 350px; margin: 0 auto; animation: fadeIn 0.5s; letter-spacing: 0.5px;">
+                        Recipe deleted successfully!
+                    </div>
+                `;
+                saveErrorContainer.style.display = 'block';
+                setTimeout(() => {
+                    saveErrorContainer.style.display = 'none';
+                    saveErrorContainer.innerHTML = '';
+                }, 3000);
+                
+                // Remove modal and reload recipes
+                document.body.removeChild(modal);
+                loadRecipes();
+                
+            } catch (error) {
+                if (error.code === 'auth/wrong-password' || error.code === 'auth/invalid-credential') {
+                    errorDiv.textContent = 'Your password is incorrect';
+                } else {
+                    errorDiv.textContent = 'Error deleting recipe: ' + error.message;
+                }
+                errorDiv.style.display = 'block';
+            }
+        };
+        
+        // Allow Enter key to confirm
+        passwordInput.addEventListener('keypress', (e) => {
+            if (e.key === 'Enter') {
+                confirmBtn.click();
+            }
+        });
+        
+        // Focus on password input
+        passwordInput.focus();
     };
 
     // Sidebar toggle function
