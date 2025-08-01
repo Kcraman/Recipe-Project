@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Favourite Recipes</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="favourites.css">
+</head>
+<body>
+    <div class="overlay"></div>
+    
+    <div class="top-bar">
+        <div class="heading">
+            <a href="../home/home.html" class="heading-text">Recipe Hub</a>
+        </div>
+    </div>
+
+    <a href="#" class="user-icon" id="userIcon">
+        <i class="fas fa-user"></i>
+        <span id="userText">Login</span>
+    </a>
+
+    <div class="menu-icon" onclick="toggleSidebar()">
+        <div></div>
+        <div></div>
+        <div></div>
+    </div>
+
+    <div class="sidebar" id="sidebar">
+        <div>
+            <a href="../home/home.html">Home</a>
+            <a href="../recipe/Recipe.html">Recipes</a>
+            <a href="../searchingredient/search-ingredient.html">Search Ingredients</a>
+            <a href="../saved/saved.html">Saved</a>
+            <a href="favourites.html" class="active">Favourites</a>
+            <a href="../createrecipe/createrecipe.html">Add Recipe</a>
+        </div>
+        <div class="bottom-link">
+            <a href="../user/User.html">User</a>
+        </div>
+    </div>
+
+    <div class="favourite-recipes-container">
+        <a href="javascript:history.back()" class="back-btn">
+            <i class="fas fa-arrow-left"></i>
+            <span>Back</span>
+        </a>
+        <h2 class="favourite-recipes-title">Favourite Recipes</h2>
+        <div class="favourite-recipes-grid" id="favouriteRecipesGrid">
+            <!-- Favourite recipes will be dynamically added here -->
+        </div>
+    </div>
+
+    <script type="module" src="favourites.js"></script>
+</body>
+</html>

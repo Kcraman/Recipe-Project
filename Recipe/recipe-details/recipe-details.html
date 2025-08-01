@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Recipe Details</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="recipe-details.css">
+</head>
+<body>
+    <div class="overlay"></div>
+
+    <div class="top-bar">
+        <h1 class="heading">
+            <i class="fas fa-utensils"></i>
+            <a href="../home/home.html" class="heading-text">Recipe Finder</a>
+            <i class="fas fa-utensils"></i>
+        </h1>
+    </div>
+
+    <div id="saveErrorContainer" style="position: fixed; top: 90px; left: 50%; transform: translateX(-50%); z-index: 9999;"></div>
+
+    <div class="menu-icon" onclick="toggleMenu()">
+        <div></div>
+        <div></div>
+        <div></div>
+    </div>
+
+    <a href="#" class="user-icon" id="userIcon">
+        <i class="fas fa-user"></i>
+        <span id="userText">Login</span>
+    </a>
+
+    <div class="sidebar" id="sidebar">
+        <div>
+            <a href="../home/home.html">Home</a>
+            <a href="../recipe/Recipe.html">Recipes</a>
+            <a href="../searchingredient/search-ingredient.html">Search Ingredients</a>
+            <a href="../saved/saved.html">Saved</a>
+            <a href="../favourites/favourites.html">Favourites</a>
+            <a href="../createrecipe/createrecipe.html">Add Recipe</a>
+        </div>
+        <div class="bottom-link">
+            <a href="../user/User.html">User</a>
+        </div>
+    </div>
+
+    <div class="recipe-card" id="recipe-details">
+        <a href="javascript:history.back()" class="back-btn">
+            <i class="fas fa-arrow-left"></i>
+            <span>Back</span>
+        </a>
+        <h2 id="recipeName">Loading...</h2>
+        
+        <div class="recipe-section">
+            <h3><i class="fas fa-list"></i> Ingredients</h3>
+            <ul class="ingredients-list" id="ingredientsList">
+                <!-- Ingredients will be populated here -->
+            </ul>
+        </div>
+
+        <div class="recipe-section">
+            <h3><i class="fas fa-tasks"></i> Instructions</h3>
+            <div class="total-time-display">
+                <div class="total-time-info">
+                    <i class="fas fa-clock"></i>
+                    <span>Total Cooking Time: <strong id="totalTimeDisplay">Calculating...</strong></span>
+                </div>
+            </div>
+            <div class="guide-controls">
+                <button id="startGuideBtn" class="guide-btn start-btn">
+                    <i class="fas fa-play"></i>
+                    <span>Start Real-Time Guide</span>
+                </button>
+                <button id="pauseGuideBtn" class="guide-btn pause-btn" style="display: none;">
+                    <i class="fas fa-pause"></i>
+                    <span>Pause</span>
+                </button>
+                <button id="finishGuideBtn" class="guide-btn finish-btn" style="display: none;">
+                    <i class="fas fa-stop"></i>
+                    <span>Finish Guide</span>
+                </button>
+            </div>
+            <div id="timerDisplay" class="timer-display" style="display: none;">
+                <div class="current-step">
+                    <span id="currentStepText">Step 1</span>
+                </div>
+                <div class="timer-container">
+                    <div class="step-timer">
+                        <span class="timer-label">Step Time:</span>
+                        <span id="timerText">00:00</span>
+                    </div>
+                    <div class="total-remaining">
+                        <span class="timer-label">Total Remaining:</span>
+                        <span id="totalRemainingText">00:00</span>
+                    </div>
+                </div>
+                <div class="progress-bar">
+                    <div id="progressFill" class="progress-fill"></div>
+                </div>
+            </div>
+            <ul class="instructions-list" id="instructionsList">
+                <!-- Instructions will be populated here -->
+            </ul>
+        </div>
+
+        <div class="recipe-actions">
+            <button id="saveRecipeBtn" class="save-recipe-btn" onclick="toggleSaveRecipe()">
+                <i class="fas fa-bookmark"></i>
+                <span>Save Recipe</span>
+            </button>
+            <button id="favouriteRecipeBtn" class="favourite-recipe-btn" onclick="toggleFavouriteRecipe()">
+                <i class="fas fa-heart"></i>
+                <span>Favourite Recipe</span>
+            </button>
+        </div>
+    </div>
+
+    <script type="module" src="recipe-details.js"></script>
+</body>
+</html> 
