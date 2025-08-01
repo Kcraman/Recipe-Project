@@ -169,8 +169,109 @@ body, html {
   margin-bottom: 22px;
   gap: 10px;
 }
-.search-box input[type="text"] {
+
+.search-input-container {
+  position: relative;
   flex: 1;
+}
+
+.search-suggestions {
+  position: absolute;
+  top: 100%;
+  left: 0;
+  right: 0;
+  background: white;
+  border: 2px solid #e0e0e0;
+  border-top: none;
+  border-radius: 0 0 8px 8px;
+  max-height: 200px;
+  overflow-y: auto;
+  z-index: 1000;
+  display: none;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+}
+
+.search-suggestions.show {
+  display: block;
+}
+
+.suggestion-item {
+  padding: 12px 15px;
+  cursor: pointer;
+  border-bottom: 1px solid #f0f0f0;
+  transition: background-color 0.2s ease;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.suggestion-item:last-child {
+  border-bottom: none;
+}
+
+.suggestion-item:hover {
+  background-color: #f8f5f0;
+}
+
+.suggestion-item.selected {
+  background-color: #5B4B3A;
+  color: white;
+}
+
+.suggestion-icon {
+  color: #5B4B3A;
+  font-size: 14px;
+}
+
+.suggestion-item.selected .suggestion-icon {
+  color: white;
+}
+
+/* Different colors for different match types */
+.suggestion-item .fa-check-circle {
+  color: #28a745;
+}
+
+.suggestion-item .fa-search {
+  color: #007bff;
+}
+
+.suggestion-item .fa-magic {
+  color: #6f42c1;
+}
+
+.suggestion-item .fa-spell-check {
+  color: #fd7e14;
+}
+
+.suggestion-item.selected .fa-check-circle,
+.suggestion-item.selected .fa-search,
+.suggestion-item.selected .fa-magic,
+.suggestion-item.selected .fa-spell-check {
+  color: white;
+}
+
+.suggestion-text {
+  flex: 1;
+}
+
+.suggestion-highlight {
+  font-weight: bold;
+  color: #5B4B3A;
+}
+
+.suggestion-item.selected .suggestion-highlight {
+  color: #F5E6C8;
+}
+
+.suggestion-message {
+  padding: 12px 15px;
+  color: #666;
+  font-style: italic;
+  border-bottom: 1px solid #f0f0f0;
+}
+.search-box input[type="text"] {
+  width: 100%;
   padding: 12px 15px;
   border: 2px solid #e0e0e0;
   border-radius: 8px;
@@ -178,6 +279,7 @@ body, html {
   transition: all 0.3s ease;
   background: #f8f5f0;
   color: #7a684a;
+  box-sizing: border-box;
 }
 .search-box input[type="text"]:focus {
   border-color: #5B4B3A;
@@ -212,6 +314,13 @@ body, html {
   }
   .search-box input[type="text"] {
     width: 120px;
+  }
+  .search-suggestions {
+    max-height: 150px;
+  }
+  .suggestion-item {
+    padding: 10px 12px;
+    font-size: 14px;
   }
 }
 .user-icon {

@@ -1,5 +1,5 @@
-// Back button functionality will be set up after DOM is loaded
-  function toggleMenu() {
+// Menu toggle functionality
+function toggleMenu() {
     document.getElementById('sidebar').classList.toggle('active');
 }
 
@@ -9,19 +9,17 @@ document.querySelectorAll('.sidebar a').forEach(link => {
     });
 });
 
-// Add click event listener to close sidebar when clicking outside
+// Close sidebar when clicking outside
 document.addEventListener('click', function(event) {
     const sidebar = document.getElementById('sidebar');
     const menuIcon = document.querySelector('.menu-icon');
     
-    // Check if sidebar is active and click is outside both sidebar and menu icon
     if (sidebar.classList.contains('active') && 
         !sidebar.contains(event.target) && 
         !menuIcon.contains(event.target)) {
         sidebar.classList.remove('active');
     }
 });
-
 
 import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
 import { getFirestore, doc, getDoc, collection, query, where, getDocs, setDoc, deleteDoc } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
@@ -69,165 +67,23 @@ async function fetchUserSavedRecipeIds(userId) {
     return savedRecipesSnap.docs.map(docSnap => docSnap.id);
 }
 
-const params = new URLSearchParams(window.location.search);
-const recipeId = params.get("id");
-const ingredientSearch = params.get("ingredientSearch");
-
 // Initialize page based on URL parameters and session storage
 function initializePage() {
-    if (ingredientSearch === '1') {
-        // Ingredient-based search result
-        const recipeIds = JSON.parse(sessionStorage.getItem('ingredientSearchResults') || '[]');
-        renderRecipesByIds(recipeIds);
-    } else if (recipeId) {
-        renderRecipe();
+    // Check if there's an ingredient search term from homepage
+    const ingredientSearchTerm = sessionStorage.getItem('ingredientSearchTerm');
+    if (ingredientSearchTerm) {
+        // Clear the search term from sessionStorage
+        sessionStorage.removeItem('ingredientSearchTerm');
+        // Set the search box value and trigger search
+        document.getElementById('search-box').value = ingredientSearchTerm;
+        // Show loading state
+        document.getElementById("recipe-details").innerHTML = '<div class="loading">Searching recipes...</div>';
+        // Use setTimeout to ensure DOM is ready
+        setTimeout(() => {
+            document.getElementById('search-btn').click();
+        }, 100);
     } else {
-        // Check if there's a search term from homepage
-        const searchTerm = sessionStorage.getItem('recipeSearchTerm');
-        if (searchTerm) {
-            // Clear the search term from sessionStorage
-            sessionStorage.removeItem('recipeSearchTerm');
-            // Set the search box value and trigger search
-            document.getElementById('search-box').value = searchTerm;
-            // Show loading state
-            document.getElementById("recipe-details").innerHTML = '<div class="loading">Searching recipes...</div>';
-            // Use setTimeout to ensure DOM is ready
-            setTimeout(() => {
-                document.getElementById('search-btn').click();
-            }, 100);
-        } else {
-            // Check if we have previous search results to restore
-            const searchResults = sessionStorage.getItem('searchResults');
-            const currentSearchTerm = sessionStorage.getItem('currentSearchTerm');
-            
-            if (searchResults && currentSearchTerm) {
-                document.getElementById('search-box').value = currentSearchTerm;
-                const results = JSON.parse(searchResults);
-                displaySearchResults(results, currentSearchTerm);
-            } else {
-                document.getElementById("recipe-details").innerHTML = "<p>No recipe selected.</p>";
-            }
-        }
-    }
-}
-
-async function renderRecipesByIds(recipeIds) {
-    const container = document.getElementById("recipe-details");
-    if (!recipeIds || recipeIds.length === 0) {
-        container.innerHTML = '<p>No recipes found with those ingredients.</p>';
-        return;
-    }
-    // Get the user's input ingredients from sessionStorage (store them when searching)
-    let inputIngredients = sessionStorage.getItem('ingredientSearchInput');
-    inputIngredients = inputIngredients ? JSON.parse(inputIngredients) : [];
-    let html = '';
-    for (const id of recipeIds) {
-        const docRef = doc(db, "Recipes", id);
-        const docSnap = await getDoc(docRef);
-        if (docSnap.exists()) {
-            const data = docSnap.data();
-            const recipeIngredients = Array.isArray(data.ingredients)
-                ? data.ingredients.map(i => i.toLowerCase())
-                : (typeof data.ingredients === 'string' ? [data.ingredients.toLowerCase()] : []);
-            const usedIngredients = inputIngredients.filter(i => recipeIngredients.includes(i));
-            const missedIngredients = recipeIngredients.filter(i => !inputIngredients.includes(i));
-            html += `<div class="recipe-result" data-id="${id}">
-                <div class="recipe-title">${data.name ? capitalize(data.name) : 'Recipe'}</div>
-                <div class="ingredient-list"><span>Used:</span> ${usedIngredients.length > 0 ? usedIngredients.join(', ') : 'None'}</div>
-                <div class="ingredient-list"><span>Missed:</span> ${missedIngredients.length > 0 ? missedIngredients.join(', ') : 'None'}</div>
-                <button class="view-btn" onclick="window.location.href='../recipe-details/recipe-details.html?id=${id}'">View Recipe</button>
-            </div>`;
-        }
-    }
-    container.innerHTML = html;
-}
-
-async function renderRecipe() {
-    const container = document.getElementById("recipe-details");
-    const docRef = doc(db, "Recipes", recipeId);
-    const docSnap = await getDoc(docRef);
-    if (docSnap.exists()) {
-        const data = docSnap.data();
-        let html = "";
-        if (data.name) {
-            html += `<h2><a href="../recipe-details/recipe-details.html?id=${recipeId}" style="text-decoration: none; color: inherit;">${capitalize(data.name)}</a></h2>`;
-        }
-        const isSaved = userSavedRecipeIds.includes(recipeId);
-        html += `<button id="saveRecipeBtn" class="save-recipe-btn${isSaved ? ' saved' : ''}" style="margin-bottom:20px;float:right;">
-            <i class="fas ${isSaved ? 'fa-check' : 'fa-bookmark'}"></i>
-            <span>${isSaved ? 'Saved' : 'Save'}</span>
-        </button>`;
-        if (data.ingredients) {
-            html += `
-                <div class="recipe-section">
-                    <h3><i class="fas fa-list"></i> Ingredients</h3>
-                    <ul class="ingredients-list">`;
-            if (Array.isArray(data.ingredients)) {
-                data.ingredients.forEach((ingredient, index) => {
-                    // Check if quantities exist
-                    if (data.quantities && Array.isArray(data.quantities) && data.quantities[index]) {
-                        html += `<li><i class="fas fa-check"></i> ${ingredient} - ${data.quantities[index]}</li>`;
-                    } else {
-                        html += `<li><i class="fas fa-check"></i> ${ingredient}</li>`;
-                    }
-                });
-            } else {
-                html += `<li><i class="fas fa-check"></i> ${data.ingredients}</li>`;
-            }
-            html += `</ul></div>`;
-        }
-        if (data.steps || data.instructions) {
-            const steps = data.steps || data.instructions;
-            html += `
-                <div class="recipe-section">
-                    <h3><i class="fas fa-clipboard-list"></i> Steps</h3>
-                    <ul class="instructions-list">`;
-            if (Array.isArray(steps)) {
-                steps.forEach(step => {
-                    html += `<li>${step}</li>`;
-                });
-            } else {
-                html += `<li>${steps}</li>`;
-            }
-            html += `</ul></div>`;
-        }
-        container.innerHTML = html;
-        const saveBtn = document.getElementById('saveRecipeBtn');
-        if (saveBtn) {
-            saveBtn.onclick = async function() {
-                const saveErrorContainer = document.getElementById('saveErrorContainer');
-                saveErrorContainer.innerHTML = '';
-                const user = auth.currentUser;
-                if (!user) {
-                    saveErrorContainer.innerHTML = `<div class=\"simple-login-notification\">Please log in to save.</div>`;
-                    saveErrorContainer.style.display = 'block';
-                    setTimeout(() => {
-                        saveErrorContainer.style.display = 'none';
-                        saveErrorContainer.innerHTML = '';
-                    }, 5000);
-                    return;
-                }
-                const recipeRef = doc(db, 'users', user.uid, 'savedRecipes', recipeId);
-                if (userSavedRecipeIds.includes(recipeId)) {
-                    // Unsave
-                    await deleteDoc(recipeRef);
-                    userSavedRecipeIds = userSavedRecipeIds.filter(id => id !== recipeId);
-                    saveBtn.classList.remove('saved');
-                    saveBtn.innerHTML = '<i class="fas fa-bookmark"></i><span>Save</span>';
-                } else {
-                    // Save
-                    await setDoc(recipeRef, {
-                        name: data.name,
-                        savedAt: new Date()
-                    });
-                    userSavedRecipeIds.push(recipeId);
-                    saveBtn.classList.add('saved');
-                    saveBtn.innerHTML = '<i class="fas fa-check"></i><span>Saved</span>';
-                }
-            };
-        }
-    } else {
-        container.innerHTML = "<p>Recipe not found.</p>";
+        document.getElementById("recipe-details").innerHTML = "<p>Enter ingredients to find recipes.</p>";
     }
 }
 
@@ -235,7 +91,7 @@ function capitalize(word) {
     return word.charAt(0).toUpperCase() + word.slice(1);
 }
 
-// Helper function to calculate total time from instructions
+// Calculate total time from instructions
 function calculateTotalTime(instructions) {
     if (!instructions || !Array.isArray(instructions)) {
         return '00:00';
@@ -254,10 +110,6 @@ function calculateTotalTime(instructions) {
     const seconds = totalSeconds % 60;
     return `${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
 }
-
-// Make functions available globally
-window.capitalize = capitalize;
-window.calculateTotalTime = calculateTotalTime;
 
 // Global function for saving recipes
 window.toggleSaveRecipe = async function(recipeId, recipeName) {
@@ -305,8 +157,9 @@ window.toggleSaveRecipe = async function(recipeId, recipeName) {
     }
 };
 
+// Ingredient search functionality
 document.querySelector("#search-btn").addEventListener("click", async () => {
-    const input = document.querySelector("#search-box").value.trim().toLowerCase();
+    const input = document.querySelector("#search-box").value.trim();
     const errorDiv = document.getElementById('searchError');
     const container = document.getElementById("recipe-details");
     
@@ -314,7 +167,7 @@ document.querySelector("#search-btn").addEventListener("click", async () => {
     errorDiv.textContent = '';
     
     if (!input) {
-        errorDiv.textContent = "Please enter a recipe name.";
+        errorDiv.textContent = "Please enter ingredients.";
         errorDiv.style.display = 'block';
         return;
     }
@@ -322,28 +175,48 @@ document.querySelector("#search-btn").addEventListener("click", async () => {
     // Show loading message
     container.innerHTML = '<div class="loading">Searching recipes...</div>';
     
+    // Split by comma or space, trim, and filter empty
+    const ingredients = input.split(/,|\s+/).map(i => i.trim()).filter(i => i);
+    if (ingredients.length === 0) {
+        errorDiv.textContent = 'Please enter at least one ingredient.';
+        errorDiv.style.display = 'block';
+        container.innerHTML = '<p class="no-results">No ingredients entered.</p>';
+        return;
+    }
+    
     const recipesRef = collection(db, "Recipes");
-    const snapshot = await getDocs(recipesRef);
+    const recipesSnapshot = await getDocs(recipesRef);
     const matchingRecipes = [];
     
-    snapshot.forEach((docSnap) => {
-        const name = (docSnap.data().name || '').toLowerCase();
-        if (name.includes(input)) {
+    recipesSnapshot.forEach((doc) => {
+        const recipeData = doc.data();
+        const recipeIngredients = Array.isArray(recipeData.ingredients)
+            ? recipeData.ingredients.map(i => i.toLowerCase())
+            : (typeof recipeData.ingredients === 'string' ? [recipeData.ingredients.toLowerCase()] : []);
+        
+        // Check if any input ingredient matches any recipe ingredient
+        let hasMatchingIngredient = false;
+        ingredients.forEach(inputIngredient => {
+            recipeIngredients.forEach(recipeIngredient => {
+                if (recipeIngredient.includes(inputIngredient.toLowerCase()) || 
+                    inputIngredient.toLowerCase().includes(recipeIngredient)) {
+                    hasMatchingIngredient = true;
+                }
+            });
+        });
+        
+        if (hasMatchingIngredient) {
             matchingRecipes.push({
-                id: docSnap.id,
-                data: docSnap.data()
+                id: doc.id,
+                data: recipeData
             });
         }
     });
     
-    // Store search results and term in sessionStorage for back navigation
-    sessionStorage.setItem('searchResults', JSON.stringify(matchingRecipes));
-    sessionStorage.setItem('currentSearchTerm', input);
-    
     if (matchingRecipes.length === 0) {
-        errorDiv.textContent = 'No recipe found with that name.';
+        errorDiv.textContent = 'No recipes found with those ingredients.';
         errorDiv.style.display = 'block';
-        container.innerHTML = '<p class="no-results">No recipes found matching your search.</p>';
+        container.innerHTML = '<p class="no-results">No recipes found matching your ingredients.</p>';
     } else {
         displaySearchResults(matchingRecipes, input);
     }
@@ -354,7 +227,7 @@ function displaySearchResults(matchingRecipes, searchTerm) {
     const container = document.getElementById("recipe-details");
     
     let html = `<div class="search-results">
-        <h3>Search Results for "${searchTerm}" (${matchingRecipes.length} recipe${matchingRecipes.length > 1 ? 's' : ''})</h3>
+        <h3>Recipes with "${searchTerm}" (${matchingRecipes.length} recipe${matchingRecipes.length > 1 ? 's' : ''})</h3>
         <div class="recipes-grid">`;
     
     matchingRecipes.forEach(recipe => {
@@ -393,83 +266,33 @@ function displaySearchResults(matchingRecipes, searchTerm) {
     html += `</div></div>`;
     container.innerHTML = html;
 }
-window.toggleMenu = toggleMenu;
-
-// Set search bar placeholder and button text based on search type
-const searchBox = document.getElementById('search-box');
-const searchBtn = document.getElementById('search-btn');
-if (ingredientSearch === '1') {
-    searchBox.placeholder = 'Enter ingredients...';
-    searchBtn.innerHTML = '<i class="fas fa-search"></i> Search Ingredients';
-} else {
-    searchBox.placeholder = 'Enter recipe name...';
-    searchBtn.innerHTML = '<i class="fas fa-search"></i> Search';
-}
 
 // Add Enter key support for search
-searchBox.addEventListener('keypress', function(event) {
+document.getElementById('search-box').addEventListener('keypress', function(event) {
     if (event.key === 'Enter') {
         event.preventDefault();
-        searchBtn.click();
+        document.getElementById('search-btn').click();
     }
 });
 
 // Global function for the back button
 window.goBack = function() {
-    console.log('Global goBack function called'); // Debug log
-    const searchResults = sessionStorage.getItem('searchResults');
-    const searchTerm = sessionStorage.getItem('currentSearchTerm');
-    
-    console.log('Search results:', searchResults); // Debug log
-    console.log('Search term:', searchTerm); // Debug log
-    
-    if (searchResults && searchTerm) {
-        try {
-            document.getElementById('search-box').value = searchTerm;
-            const results = JSON.parse(searchResults);
-            
-            // Simple display of results without complex formatting
-            const container = document.getElementById("recipe-details");
-            let html = `<div class="search-results">
-                <h3>Search Results for "${searchTerm}" (${results.length} recipe${results.length > 1 ? 's' : ''})</h3>
-                <div class="recipes-grid">`;
-            
-            results.forEach(recipe => {
-                const isSaved = userSavedRecipeIds ? userSavedRecipeIds.includes(recipe.id) : false;
-                html += `
-                    <div class="recipe-card-item" data-id="${recipe.id}">
-                        <div class="recipe-header">
-                            <h4 class="recipe-title">${capitalize(recipe.data.name)}</h4>
-                            <button class="save-recipe-btn ${isSaved ? 'saved' : ''}" onclick="toggleSaveRecipe('${recipe.id}', '${recipe.data.name}')">
-                                <i class="fas ${isSaved ? 'fa-check' : 'fa-bookmark'}"></i>
-                                <span>${isSaved ? 'Saved' : 'Save'}</span>
-                            </button>
-                        </div>
-                        <div class="recipe-preview">
-                            <div class="recipe-info">
-                                <span><i class="fas fa-list"></i> ${recipe.data.ingredients ? (Array.isArray(recipe.data.ingredients) ? recipe.data.ingredients.length : 1) : 0} ingredients</span>
-                                <span><i class="fas fa-clock"></i> ${calculateTotalTime(recipe.data.instructions)}</span>
-                            </div>
-                            <button class="view-recipe-btn" onclick="window.location.href='../recipe-details/recipe-details.html?id=${recipe.id}'">
-                                <i class="fas fa-eye"></i> View Recipe
-                            </button>
-                        </div>
-                    </div>
-                `;
-            });
-            
-            html += `</div></div>`;
-            container.innerHTML = html;
-            console.log('Search results restored successfully'); // Debug log
-        } catch (error) {
-            console.error('Error restoring search results:', error); // Debug log
-            window.history.back();
-        }
-    } else {
-        console.log('No search results found, using normal back navigation'); // Debug log
-        window.history.back();
-    }
+    window.history.back();
 };
+
+// Set up back button functionality after DOM is loaded
+document.addEventListener('DOMContentLoaded', function() {
+    const backBtn = document.getElementById('backBtn');
+    if (backBtn) {
+        backBtn.addEventListener('click', function() {
+            window.goBack();
+        });
+    }
+});
+
+window.toggleMenu = toggleMenu;
+window.capitalize = capitalize;
+window.calculateTotalTime = calculateTotalTime;
 
 // Delete recipe functionality
 window.showDeleteConfirmation = function(recipeId, recipeName) {
@@ -587,17 +410,3 @@ window.showDeleteConfirmation = function(recipeId, recipeName) {
     // Focus on password input
     passwordInput.focus();
 };
-
-// Set up back button functionality after DOM is loaded
-document.addEventListener('DOMContentLoaded', function() {
-    const backBtn = document.getElementById('backBtn');
-    if (backBtn) {
-        backBtn.addEventListener('click', function() {
-            console.log('Back button clicked via event listener'); // Debug log
-            window.goBack();
-        });
-        console.log('Back button event listener added'); // Debug log
-    } else {
-        console.log('Back button not found'); // Debug log
-    }
-});
