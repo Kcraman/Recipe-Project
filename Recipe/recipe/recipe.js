@@ -103,6 +103,12 @@ document.addEventListener('DOMContentLoaded', function() {
     const categoryNav = document.getElementById('category-nav');
     const recipesRef = collection(db, "Recipes");
 
+    // Pagination variables
+    let currentPage = 1;
+    let recipesPerPage = 5; // 5 letters per page
+    let allRecipes = [];
+    let totalPages = 0;
+
     async function loadRecipes() {
         try {
             const recipesSnapshot = await getDocs(recipesRef);
@@ -114,7 +120,12 @@ document.addEventListener('DOMContentLoaded', function() {
                         ...doc.data()
                     });
                 });
+                
+                // Sort recipes alphabetically
                 recipes.sort((a, b) => a.name.localeCompare(b.name));
+                allRecipes = recipes;
+                
+                // Group recipes by first letter
                 const groupedRecipes = {};
                 recipes.forEach(recipe => {
                     const firstLetter = recipe.name.charAt(0).toUpperCase();
@@ -123,44 +134,186 @@ document.addEventListener('DOMContentLoaded', function() {
                     }
                     groupedRecipes[firstLetter].push(recipe);
                 });
-                categoryNav.innerHTML = '';
-                Object.keys(groupedRecipes).sort().forEach(letter => {
-                    const categorySection = document.createElement('div');
-                    categorySection.className = 'category-section';
-                    categorySection.innerHTML = `
-                        <div class="category-header">${letter}</div>
-                        <div class="recipe-list">
-                            ${groupedRecipes[letter].map(recipe => {
-                                const isSaved = userSavedRecipeIds.includes(recipe.id);
-                                const isFavourited = userFavouriteRecipeIds.includes(recipe.id);
-                                return `
-                                    <div class="recipe-name" style="position: relative;">
-                                        <div class="recipe-actions" style="position: absolute; right: 0; top: 50%; transform: translateY(-50%); display: flex; gap: 10px;">
-                                            <button class="save-recipe-btn ${isSaved ? 'saved' : ''}" onclick="toggleSaveRecipe('${recipe.id}', '${recipe.name}')">
-                                                <i class="fas ${isSaved ? 'fa-check' : 'fa-bookmark'}"></i>
-                                                <span>${isSaved ? 'Saved' : 'Save'}</span>
-                                            </button>
-                                            <button class="favourite-recipe-btn ${isFavourited ? 'favourited' : ''}" onclick="toggleFavouriteRecipe('${recipe.id}', '${recipe.name}')">
-                                                <i class="fas fa-heart"></i>
-                                                <span>${isFavourited ? 'Favourited' : 'Favourite'}</span>
-                                            </button>
-                                        </div>
-                                        <a href="../recipe-details/recipe-details.html?id=${recipe.id}" style="text-decoration: none; color: inherit; display: block; padding-right: 240px;">
-                                            ${recipe.name.split(' ').map(word => word.charAt(0).toUpperCase() + word.slice(1)).join(' ')}
-                                        </a>
-                                    </div>
-                                `;
-                            }).join('')}
-                        </div>
-                    `;
-                    categoryNav.appendChild(categorySection);
-                });
+                
+                // Get all unique letters and sort them
+                const allLetters = Object.keys(groupedRecipes).sort();
+                totalPages = Math.ceil(allLetters.length / recipesPerPage);
+                
+                // Display current page
+                displayCurrentPage(groupedRecipes, allLetters);
+                
+                // Add pagination controls
+                addPaginationControls();
+                
             } else {
                 categoryNav.innerHTML = '<p style="color: #F5E6C8; text-align: center;">No recipes found in the database.</p>';
             }
         } catch (error) {
             categoryNav.innerHTML = `<p style='color: red; text-align: center;'>Failed to load recipes: ${error.message}</p>`;
         }
+    }
+
+    function displayCurrentPage(groupedRecipes, allLetters) {
+        categoryNav.innerHTML = '';
+        
+        // Calculate which letters to show on current page
+        const startIndex = (currentPage - 1) * recipesPerPage;
+        const endIndex = startIndex + recipesPerPage;
+        const currentPageLetters = allLetters.slice(startIndex, endIndex);
+        
+        // Display recipes for current page letters
+        currentPageLetters.forEach(letter => {
+            const categorySection = document.createElement('div');
+            categorySection.className = 'category-section';
+            categorySection.innerHTML = `
+                <div class="category-header">${letter}</div>
+                <div class="recipe-list">
+                    ${groupedRecipes[letter].map(recipe => {
+                        const isSaved = userSavedRecipeIds.includes(recipe.id);
+                        const isFavourited = userFavouriteRecipeIds.includes(recipe.id);
+                        return `
+                            <div class="recipe-name" style="position: relative;">
+                                <div class="recipe-actions" style="position: absolute; right: 0; top: 50%; transform: translateY(-50%); display: flex; gap: 10px;">
+                                    <button class="save-recipe-btn ${isSaved ? 'saved' : ''}" onclick="toggleSaveRecipe('${recipe.id}', '${recipe.name}')">
+                                        <i class="fas ${isSaved ? 'fa-check' : 'fa-bookmark'}"></i>
+                                        <span>${isSaved ? 'Saved' : 'Save'}</span>
+                                    </button>
+                                    <button class="favourite-recipe-btn ${isFavourited ? 'favourited' : ''}" onclick="toggleFavouriteRecipe('${recipe.id}', '${recipe.name}')">
+                                        <i class="fas fa-heart"></i>
+                                        <span>${isFavourited ? 'Favourited' : 'Favourite'}</span>
+                                    </button>
+                                </div>
+                                <a href="../recipe-details/recipe-details.html?id=${recipe.id}" style="text-decoration: none; color: inherit; display: block; padding-right: 240px;">
+                                    ${recipe.name.split(' ').map(word => word.charAt(0).toUpperCase() + word.slice(1)).join(' ')}
+                                </a>
+                            </div>
+                        `;
+                    }).join('')}
+                </div>
+            `;
+            categoryNav.appendChild(categorySection);
+        });
+    }
+
+    function addPaginationControls() {
+        if (totalPages <= 1) return;
+        
+        const paginationContainer = document.createElement('div');
+        paginationContainer.className = 'pagination-container';
+        paginationContainer.style.cssText = `
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 10px;
+            margin-top: 30px;
+            padding: 20px;
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 15px;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+        `;
+        
+        // Previous button
+        const prevBtn = document.createElement('button');
+        prevBtn.innerHTML = '<i class="fas fa-chevron-left"></i> Previous';
+        prevBtn.disabled = currentPage === 1;
+        prevBtn.onclick = () => {
+            if (currentPage > 1) {
+                currentPage--;
+                loadRecipes();
+            }
+        };
+        prevBtn.style.cssText = `
+            padding: 10px 15px;
+            background-color: ${currentPage === 1 ? '#ccc' : '#5B4B3A'};
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: ${currentPage === 1 ? 'not-allowed' : 'pointer'};
+            transition: all 0.3s ease;
+        `;
+        
+        // Page numbers
+        const pageNumbersContainer = document.createElement('div');
+        pageNumbersContainer.style.cssText = `
+            display: flex;
+            gap: 5px;
+        `;
+        
+        // Calculate which page numbers to show
+        let startPage = Math.max(1, currentPage - 2);
+        let endPage = Math.min(totalPages, currentPage + 2);
+        
+        // Always show at least 5 page numbers if possible
+        if (endPage - startPage < 4) {
+            if (startPage === 1) {
+                endPage = Math.min(totalPages, startPage + 4);
+            } else {
+                startPage = Math.max(1, endPage - 4);
+            }
+        }
+        
+        for (let i = startPage; i <= endPage; i++) {
+            const pageBtn = document.createElement('button');
+            pageBtn.textContent = i;
+            pageBtn.onclick = () => {
+                currentPage = i;
+                loadRecipes();
+            };
+            pageBtn.style.cssText = `
+                padding: 10px 15px;
+                background-color: ${i === currentPage ? '#bb6736' : '#5B4B3A'};
+                color: white;
+                border: none;
+                border-radius: 8px;
+                font-size: 14px;
+                font-weight: 600;
+                cursor: pointer;
+                transition: all 0.3s ease;
+                min-width: 40px;
+            `;
+            pageNumbersContainer.appendChild(pageBtn);
+        }
+        
+        // Next button
+        const nextBtn = document.createElement('button');
+        nextBtn.innerHTML = 'Next <i class="fas fa-chevron-right"></i>';
+        nextBtn.disabled = currentPage === totalPages;
+        nextBtn.onclick = () => {
+            if (currentPage < totalPages) {
+                currentPage++;
+                loadRecipes();
+            }
+        };
+        nextBtn.style.cssText = `
+            padding: 10px 15px;
+            background-color: ${currentPage === totalPages ? '#ccc' : '#5B4B3A'};
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: ${currentPage === totalPages ? 'not-allowed' : 'pointer'};
+            transition: all 0.3s ease;
+        `;
+        
+        // Page info
+        const pageInfo = document.createElement('div');
+        pageInfo.textContent = `Page ${currentPage} of ${totalPages}`;
+        pageInfo.style.cssText = `
+            color: #5B4B3A;
+            font-weight: 600;
+            font-size: 14px;
+            margin: 0 15px;
+        `;
+        
+        paginationContainer.appendChild(prevBtn);
+        paginationContainer.appendChild(pageNumbersContainer);
+        paginationContainer.appendChild(pageInfo);
+        paginationContainer.appendChild(nextBtn);
+        
+        categoryNav.appendChild(paginationContainer);
     }
 
     window.toggleSaveRecipe = async function(recipeId, recipeName) {
