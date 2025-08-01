@@ -1,0 +1,197 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>User Management - Recipe Finder Admin</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="adminusers.css">
+</head>
+<body>
+    <div class="admin-header">
+        <div class="header-content">
+            <div class="logo-section">
+                <i class="fas fa-shield-alt"></i>
+                <h1>Recipe Finder Admin</h1>
+            </div>
+            <div class="admin-info">
+                <span id="adminName">Admin</span>
+                <button id="logoutBtn" class="logout-btn">
+                    <i class="fas fa-sign-out-alt"></i>
+                    Logout
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <div class="admin-container">
+        <div class="sidebar">
+            <nav class="admin-nav">
+                <a href="../adminhome/adminhome.html" class="nav-item">
+                    <i class="fas fa-tachometer-alt"></i>
+                    <span>Dashboard</span>
+                </a>
+                <a href="#" class="nav-item active" data-page="users">
+                    <i class="fas fa-users"></i>
+                    <span>User Management</span>
+                </a>
+                <a href="../adminrecipes/adminrecipes.html" class="nav-item">
+                    <i class="fas fa-utensils"></i>
+                    <span>Recipe Management</span>
+                </a>
+                <a href="../createrecipe/createrecipe.html" class="nav-item">
+                    <i class="fas fa-plus-circle"></i>
+                    <span>Create Recipe</span>
+                </a>
+                <a href="../home/home.html" class="nav-item">
+                    <i class="fas fa-home"></i>
+                    <span>Main Site</span>
+                </a>
+            </nav>
+        </div>
+
+        <div class="main-content">
+            <div class="page-header">
+                <div class="header-left">
+                    <h2>User Management</h2>
+                    <p>Manage user accounts, permissions, and profiles</p>
+                </div>
+                <div class="header-right">
+                    <div class="search-box">
+                        <i class="fas fa-search"></i>
+                        <input type="text" id="searchUsers" placeholder="Search users...">
+                    </div>
+                    <button id="refreshBtn" class="refresh-btn">
+                        <i class="fas fa-sync-alt"></i>
+                        Refresh
+                    </button>
+                </div>
+            </div>
+
+            <div class="stats-bar">
+                <div class="stat-item">
+                    <i class="fas fa-users"></i>
+                    <span>Total Users: <strong id="totalUsers">0</strong></span>
+                </div>
+                <div class="stat-item">
+                    <i class="fas fa-user-shield"></i>
+                    <span>Admin Users: <strong id="adminUsers">0</strong></span>
+                </div>
+                <div class="stat-item">
+                    <i class="fas fa-user-check"></i>
+                    <span>Active Users: <strong id="activeUsers">0</strong></span>
+                </div>
+            </div>
+
+            <div class="users-container">
+                <div class="table-header">
+                    <h3>User List</h3>
+                    <div class="table-actions">
+                        <select id="filterRole" class="filter-select">
+                            <option value="">All Roles</option>
+                            <option value="admin">Admin</option>
+                            <option value="user">User</option>
+                        </select>
+                        <select id="sortUsers" class="sort-select">
+                            <option value="name">Sort by Name</option>
+                            <option value="email">Sort by Email</option>
+                            <option value="date">Sort by Date</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="table-container">
+                    <table class="users-table">
+                        <thead>
+                            <tr>
+                                <th>User</th>
+                                <th>Email</th>
+                                <th>Role</th>
+                                <th>Status</th>
+                                <th>Joined</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody id="usersTableBody">
+                            <tr>
+                                <td colspan="6" class="loading-row">
+                                    <i class="fas fa-spinner fa-spin"></i>
+                                    Loading users...
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Edit User Modal -->
+    <div id="editUserModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>Edit User</h3>
+                <button class="close-btn" onclick="closeModal('editUserModal')">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+            <form id="editUserForm">
+                <div class="form-group">
+                    <label for="editFirstName">First Name</label>
+                    <input type="text" id="editFirstName" required>
+                </div>
+                <div class="form-group">
+                    <label for="editLastName">Last Name</label>
+                    <input type="text" id="editLastName" required>
+                </div>
+                <div class="form-group">
+                    <label for="editEmail">Email</label>
+                    <input type="email" id="editEmail" required readonly>
+                </div>
+                <div class="form-group">
+                    <label for="editRole">Role</label>
+                    <select id="editRole" required>
+                        <option value="user">User</option>
+                        <option value="admin">Admin</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label for="editStatus">Status</label>
+                    <select id="editStatus" required>
+                        <option value="active">Active</option>
+                        <option value="inactive">Inactive</option>
+                    </select>
+                </div>
+                <div class="modal-actions">
+                    <button type="button" class="btn-secondary" onclick="closeModal('editUserModal')">Cancel</button>
+                    <button type="submit" class="btn-primary">Save Changes</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Delete Confirmation Modal -->
+    <div id="deleteUserModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>Delete User</h3>
+                <button class="close-btn" onclick="closeModal('deleteUserModal')">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+            <div class="modal-body">
+                <p>Are you sure you want to delete this user?</p>
+                <p><strong id="deleteUserName"></strong></p>
+                <p class="warning">This action cannot be undone.</p>
+            </div>
+            <div class="modal-actions">
+                <button type="button" class="btn-secondary" onclick="closeModal('deleteUserModal')">Cancel</button>
+                <button type="button" class="btn-danger" id="confirmDeleteBtn">Delete User</button>
+            </div>
+        </div>
+    </div>
+
+    <script type="module" src="adminusers.js"></script>
+</body>
+</html>

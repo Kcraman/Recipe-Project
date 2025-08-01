@@ -109,19 +109,19 @@ body, html {
 }
 
 .sidebar {
-    position: fixed;
-    left: -300px;
-    top: 0;
-    width: 250px;
-    height: 100%;
-    background-color: rgba(34, 34, 34, 0.95);
-    padding: 80px 20px 20px;
-    transition: left 0.3s ease;
-    display: flex;
-    flex-direction: column;
-    justify-content: space-between;
-    z-index: 1000;
-    backdrop-filter: blur(10px);
+  position: fixed;
+  left: -300px;
+  top: 0;
+  width: 250px;
+  height: 100vh;
+  background-color: rgba(34, 34, 34, 0.95);
+  padding: 80px 20px 20px;
+  transition: left 0.3s ease;
+  display: flex;
+  flex-direction: column;
+  z-index: 1000;
+  backdrop-filter: blur(10px);
+  overflow-y: auto;
 }
 
 .sidebar.active {
@@ -142,6 +142,13 @@ body, html {
 .sidebar a:hover {
     background-color: rgba(255, 255, 255, 0.1);
     transform: translateX(5px);
+}
+
+.sidebar .bottom-link {
+  margin-top: auto;
+  margin-bottom: 20px;
+  padding-top: 20px;
+  border-top: 1px solid rgba(255, 255, 255, 0.1);
 }
 
 .back-btn {
@@ -183,7 +190,7 @@ body, html {
 .saved-recipes-title {
     text-align: center;
     font-size: 2rem;
-    color: #5B4B3A;
+    color: #F5E6C8;
     margin-bottom: 20px;
     margin-top: 10px;
     font-family: 'Poppins', sans-serif;

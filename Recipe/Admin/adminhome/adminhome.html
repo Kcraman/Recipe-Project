@@ -1,0 +1,122 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Admin Dashboard - Recipe Finder</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="adminhome.css">
+</head>
+<body>
+    <div class="admin-header">
+        <div class="header-content">
+            <div class="logo-section">
+                <i class="fas fa-shield-alt"></i>
+                <h1>Recipe Finder Admin</h1>
+            </div>
+            <div class="admin-info">
+                <span id="adminName">Admin</span>
+                <button id="logoutBtn" class="logout-btn">
+                    <i class="fas fa-sign-out-alt"></i>
+                    Logout
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <div class="admin-container">
+        <div class="sidebar">
+            <nav class="admin-nav">
+                <a href="#" class="nav-item active" data-page="dashboard">
+                    <i class="fas fa-tachometer-alt"></i>
+                    <span>Dashboard</span>
+                </a>
+                <a href="../adminusers/adminusers.html" class="nav-item">
+                    <i class="fas fa-users"></i>
+                    <span>User Management</span>
+                </a>
+                <a href="../adminrecipes/adminrecipes.html" class="nav-item">
+                    <i class="fas fa-utensils"></i>
+                    <span>Recipe Management</span>
+                </a>
+                <a href="../admincreate/admincreate.html" class="nav-item">
+                    <i class="fas fa-plus-circle"></i>
+                    <span>Create Recipe</span>
+                </a>
+                <a href="../../home/home.html" class="nav-item">
+                    <i class="fas fa-home"></i>
+                    <span>Main Site</span>
+                </a>
+            </nav>
+        </div>
+
+        <div class="main-content">
+            <div class="dashboard-header">
+                <h2>Admin Dashboard</h2>
+                <p>Welcome to the Recipe Finder administration panel</p>
+            </div>
+
+            <div class="stats-grid">
+                <div class="stat-card">
+                    <div class="stat-icon">
+                        <i class="fas fa-users"></i>
+                    </div>
+                    <div class="stat-content">
+                        <h3 id="totalUsers">0</h3>
+                        <p>Total Users</p>
+                    </div>
+                </div>
+
+                <div class="stat-card">
+                    <div class="stat-icon">
+                        <i class="fas fa-utensils"></i>
+                    </div>
+                    <div class="stat-content">
+                        <h3 id="totalRecipes">0</h3>
+                        <p>Total Recipes</p>
+                    </div>
+                </div>
+
+                <div class="stat-card">
+                    <div class="stat-icon">
+                        <i class="fas fa-user-shield"></i>
+                    </div>
+                    <div class="stat-content">
+                        <h3 id="adminUsers">0</h3>
+                        <p>Admin Users</p>
+                    </div>
+                </div>
+
+
+            </div>
+
+            <div class="quick-actions">
+                <h3>Quick Actions</h3>
+                <div class="action-buttons">
+                    <a href="../adminusers/adminusers.html" class="action-btn">
+                        <i class="fas fa-user-cog"></i>
+                        <span>Manage Users</span>
+                    </a>
+                    <a href="../adminrecipes/adminrecipes.html" class="action-btn">
+                        <i class="fas fa-edit"></i>
+                        <span>Manage Recipes</span>
+                    </a>
+                    <a href="../admincreate/admincreate.html" class="action-btn">
+                        <i class="fas fa-plus"></i>
+                        <span>Add New Recipe</span>
+                    </a>
+                    <a href="../../home/home.html" class="action-btn">
+                        <i class="fas fa-external-link-alt"></i>
+                        <span>View Main Site</span>
+                    </a>
+                </div>
+            </div>
+
+
+        </div>
+    </div>
+
+    <script type="module" src="adminhome.js"></script>
+</body>
+</html>

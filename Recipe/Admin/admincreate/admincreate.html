@@ -1,0 +1,130 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Admin - Create Recipe</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="admincreate.css">
+</head>
+<body>
+    <!-- Admin Header -->
+    <div class="admin-header">
+        <div class="header-content">
+            <div class="logo-section">
+                <i class="fas fa-utensils"></i>
+                <h1>Recipe Finder Admin</h1>
+            </div>
+            <div class="admin-info">
+                <span id="adminName">Admin</span>
+                <button class="logout-btn" id="logoutBtn">
+                    <i class="fas fa-sign-out-alt"></i>
+                    Logout
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Admin Container -->
+    <div class="admin-container">
+        <!-- Sidebar -->
+        <div class="sidebar">
+            <nav class="admin-nav">
+                <a href="../adminhome/adminhome.html" class="nav-item">
+                    <i class="fas fa-tachometer-alt"></i>
+                    Dashboard
+                </a>
+                <a href="../adminusers/adminusers.html" class="nav-item">
+                    <i class="fas fa-users"></i>
+                    User Management
+                </a>
+                <a href="../adminrecipes/adminrecipes.html" class="nav-item">
+                    <i class="fas fa-book-open"></i>
+                    Recipe Management
+                </a>
+                <a href="admincreate.html" class="nav-item active">
+                    <i class="fas fa-plus-circle"></i>
+                    Create Recipe
+                </a>
+                <a href="../../home/home.html" class="nav-item">
+                    <i class="fas fa-home"></i>
+                    Main Site
+                </a>
+            </nav>
+        </div>
+
+        <!-- Main Content -->
+        <div class="main-content">
+            <div class="page-header">
+                <div class="header-left">
+                    <h2><i class="fas fa-plus-circle"></i> Create Recipe</h2>
+                    <p>Add a new recipe to the database</p>
+                </div>
+                <div class="header-right">
+                    <a href="javascript:history.back()" class="back-btn">
+                        <i class="fas fa-arrow-left"></i>
+                        Back
+                    </a>
+                </div>
+            </div>
+
+            <div id="errorContainer" class="error-message"></div>
+            <div id="successContainer" class="success-message"></div>
+
+            <form id="recipeForm" class="recipe-form">
+                <div class="form-group">
+                    <label for="recipeName">Recipe Name</label>
+                    <input type="text" id="recipeName" required placeholder="Enter recipe name">
+                </div>
+
+                <div class="form-group">
+                    <label>Ingredients</label>
+                    <div id="ingredientsList" class="ingredients-list">
+                        <div class="list-item">
+                            <div class="ingredient-inputs">
+                                <input type="text" placeholder="Enter ingredient" required>
+                                <input type="text" placeholder="Quantity (e.g., 2 cups)" required>
+                            </div>
+                            <button type="button" class="remove-btn">
+                                <i class="fas fa-times"></i>
+                            </button>
+                        </div>
+                    </div>
+                    <button type="button" class="add-btn">
+                        <i class="fas fa-plus"></i> Add Ingredient
+                    </button>
+                </div>
+
+                <div class="form-group">
+                    <label>Instructions</label>
+                    <div id="instructionsList" class="instructions-list">
+                        <div class="list-item">
+                            <div class="instruction-inputs">
+                                <input type="text" placeholder="Enter instruction step" required>
+                                <div class="time-input-group">
+                                    <input type="number" min="0" placeholder="Min" class="time-input minutes" required>
+                                    <span class="time-separator">:</span>
+                                    <input type="number" min="0" max="59" placeholder="Sec" class="time-input seconds" required>
+                                </div>
+                            </div>
+                            <button type="button" class="remove-btn">
+                                <i class="fas fa-times"></i>
+                            </button>
+                        </div>
+                    </div>
+                    <button type="button" class="add-btn">
+                        <i class="fas fa-plus"></i> Add Step
+                    </button>
+                </div>
+
+                <button type="submit" class="submit-btn">
+                    <i class="fas fa-save"></i> Create Recipe
+                </button>
+            </form>
+        </div>
+    </div>
+
+    <script type="module" src="admincreate.js"></script>
+</body>
+</html>
