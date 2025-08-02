@@ -194,18 +194,27 @@ document.querySelector("#search-btn").addEventListener("click", async () => {
             ? recipeData.ingredients.map(i => i.toLowerCase())
             : (typeof recipeData.ingredients === 'string' ? [recipeData.ingredients.toLowerCase()] : []);
         
-        // Check if any input ingredient matches any recipe ingredient
-        let hasMatchingIngredient = false;
+        // Calculate how many input ingredients match recipe ingredients
+        let matchingIngredientsCount = 0;
+        
         ingredients.forEach(inputIngredient => {
+            let ingredientMatched = false;
             recipeIngredients.forEach(recipeIngredient => {
                 if (recipeIngredient.includes(inputIngredient.toLowerCase()) || 
                     inputIngredient.toLowerCase().includes(recipeIngredient)) {
-                    hasMatchingIngredient = true;
+                    ingredientMatched = true;
                 }
             });
+            if (ingredientMatched) {
+                matchingIngredientsCount++;
+            }
         });
         
-        if (hasMatchingIngredient) {
+        // Check if recipe has at least 75% of the entered ingredients
+        const requiredMatchPercentage = 0.75;
+        const requiredMatches = Math.ceil(ingredients.length * requiredMatchPercentage);
+        
+        if (matchingIngredientsCount >= requiredMatches) {
             matchingRecipes.push({
                 id: doc.id,
                 data: recipeData
@@ -214,9 +223,9 @@ document.querySelector("#search-btn").addEventListener("click", async () => {
     });
     
     if (matchingRecipes.length === 0) {
-        errorDiv.textContent = 'No recipes found with those ingredients.';
+        errorDiv.textContent = 'No recipes found with at least 75% of those ingredients.';
         errorDiv.style.display = 'block';
-        container.innerHTML = '<p class="no-results">No recipes found matching your ingredients.</p>';
+        container.innerHTML = '<p class="no-results">No recipes found matching at least 75% of your ingredients.</p>';
     } else {
         displaySearchResults(matchingRecipes, input);
     }
@@ -227,7 +236,7 @@ function displaySearchResults(matchingRecipes, searchTerm) {
     const container = document.getElementById("recipe-details");
     
     let html = `<div class="search-results">
-        <h3>Recipes with "${searchTerm}" (${matchingRecipes.length} recipe${matchingRecipes.length > 1 ? 's' : ''})</h3>
+        <h3>Recipes with at least 75% of "${searchTerm}" (${matchingRecipes.length} recipe${matchingRecipes.length > 1 ? 's' : ''})</h3>
         <div class="recipes-grid">`;
     
     matchingRecipes.forEach(recipe => {

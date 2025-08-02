@@ -14,7 +14,7 @@ function togglePassword() {
 window.togglePassword = togglePassword;
 //Firebase logic
 import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
-import { getAuth, signInWithEmailAndPassword } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
+import { getAuth, signInWithEmailAndPassword, sendPasswordResetEmail } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
 const firebaseConfig = {
     apiKey: "AIzaSyAYWtxU8MhK1BKgwrRViZ5GM9RyvVtAOfc",
     authDomain: "recipe-finder-sign-in.firebaseapp.com",
@@ -88,5 +88,82 @@ document.getElementById('loginForm').addEventListener('submit', function (e) {
             }
             
             showError(errorMessage);
+        });
+});
+
+// Modal functionality
+const modal = document.getElementById('forgotPasswordModal');
+const forgotPasswordLink = document.getElementById('forgotPasswordLink');
+const closeBtn = document.querySelector('.close');
+
+// Open modal
+forgotPasswordLink.addEventListener('click', function(e) {
+    e.preventDefault();
+    modal.style.display = 'block';
+});
+
+// Close modal when clicking on X
+closeBtn.addEventListener('click', function() {
+    modal.style.display = 'none';
+});
+
+// Close modal when clicking outside of it
+window.addEventListener('click', function(e) {
+    if (e.target === modal) {
+        modal.style.display = 'none';
+    }
+});
+
+// Forgot password form submission
+document.getElementById('forgotPasswordForm').addEventListener('submit', function(e) {
+    e.preventDefault();
+    const email = document.getElementById('resetEmail').value;
+    const forgotErrorContainer = document.getElementById('forgotErrorContainer');
+    const forgotSuccessContainer = document.getElementById('forgotSuccessContainer');
+
+    // Validate email format
+    const emailRegex = /^[^\s@]+@gmail\.com$/;
+    if (!emailRegex.test(email)) {
+        forgotErrorContainer.innerHTML = `<i class="fas fa-exclamation-circle"></i> Please enter a valid Gmail address (example@gmail.com)`;
+        forgotErrorContainer.style.display = 'block';
+        setTimeout(() => {
+            forgotErrorContainer.style.display = 'none';
+        }, 5000);
+        return;
+    }
+
+    // Send password reset email
+    sendPasswordResetEmail(auth, email)
+        .then(() => {
+            forgotSuccessContainer.innerHTML = `<i class="fas fa-check-circle"></i> Password reset email sent! Please check your inbox and spam folder.`;
+            forgotSuccessContainer.style.display = 'block';
+            setTimeout(() => {
+                forgotSuccessContainer.style.display = 'none';
+                modal.style.display = 'none';
+                document.getElementById('resetEmail').value = '';
+            }, 5000);
+        })
+        .catch((error) => {
+            let errorMessage;
+            
+            switch (error.code) {
+                case 'auth/invalid-email':
+                    errorMessage = "Please enter a valid Gmail address.";
+                    break;
+                case 'auth/user-not-found':
+                    errorMessage = "No account found with this email address.";
+                    break;
+                case 'auth/too-many-requests':
+                    errorMessage = "Too many requests. Please try again later.";
+                    break;
+                default:
+                    errorMessage = "An error occurred. Please try again.";
+            }
+            
+            forgotErrorContainer.innerHTML = `<i class="fas fa-exclamation-circle"></i> ${errorMessage}`;
+            forgotErrorContainer.style.display = 'block';
+            setTimeout(() => {
+                forgotErrorContainer.style.display = 'none';
+            }, 5000);
         });
 });
