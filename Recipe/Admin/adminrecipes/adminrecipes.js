@@ -49,6 +49,7 @@ async function loadAdminName() {
             }
         } catch (error) {
             console.error("Error loading admin name:", error);
+            showError("Failed to load admin information");
         }
     }
 }
@@ -75,9 +76,13 @@ async function loadRecipes() {
         updateStats();
         renderRecipes();
         
+        if (allRecipes.length > 0) {
+            showSuccess(`${allRecipes.length} recipes loaded successfully`);
+        }
+        
     } catch (error) {
         console.error("Error loading recipes:", error);
-        showError("Failed to load recipes");
+        showError("Failed to load recipes. Please try refreshing the page.");
     }
 }
 
@@ -402,7 +407,7 @@ async function saveRecipeChanges() {
         
     } catch (error) {
         console.error("Error updating recipe:", error);
-        showError("Failed to update recipe");
+        showError("Failed to update recipe. Please try again.");
     }
 }
 
@@ -424,20 +429,66 @@ async function confirmDeleteRecipe() {
         
     } catch (error) {
         console.error("Error deleting recipe:", error);
-        showError("Failed to delete recipe");
+        showError("Failed to delete recipe. Please try again.");
     }
 }
 
 // Show success message
 function showSuccess(message) {
-    // You can implement a toast notification system here
-    alert(message);
+    showNotification(message, 'success', 'Success');
 }
 
 // Show error message
 function showError(message) {
-    // You can implement a toast notification system here
-    alert('Error: ' + message);
+    showNotification(message, 'error', 'Error');
+}
+
+// Show info message
+function showInfo(message) {
+    showNotification(message, 'info', 'Info');
+}
+
+// Notification system
+function showNotification(message, type = 'info', title = 'Notification') {
+    const container = document.getElementById('notificationContainer');
+    if (!container) return;
+
+    const notification = document.createElement('div');
+    notification.className = `notification ${type}`;
+    
+    const icon = type === 'success' ? 'fas fa-check-circle' : 
+                 type === 'error' ? 'fas fa-exclamation-circle' : 
+                 'fas fa-info-circle';
+    
+    notification.innerHTML = `
+        <i class="${icon} notification-icon"></i>
+        <div class="notification-content">
+            <div class="notification-title">${title}</div>
+            <div class="notification-message">${message}</div>
+        </div>
+        <button class="notification-close" onclick="this.parentElement.remove()">
+            <i class="fas fa-times"></i>
+        </button>
+    `;
+    
+    container.appendChild(notification);
+    
+    // Trigger animation
+    setTimeout(() => {
+        notification.classList.add('show');
+    }, 10);
+    
+    // Auto remove after 5 seconds
+    setTimeout(() => {
+        if (notification.parentElement) {
+            notification.classList.remove('show');
+            setTimeout(() => {
+                if (notification.parentElement) {
+                    notification.remove();
+                }
+            }, 400);
+        }
+    }, 5000);
 }
 
 // Logout function
@@ -449,6 +500,7 @@ async function logout() {
         window.location.href = "../adminlogin/adminlogin.html";
     } catch (error) {
         console.error("Error during logout:", error);
+        showError("Failed to logout. Please try again.");
     }
 }
 
@@ -480,7 +532,10 @@ document.addEventListener('DOMContentLoaded', function() {
     // Refresh button
     const refreshBtn = document.querySelector('.refresh-btn');
     if (refreshBtn) {
-        refreshBtn.addEventListener('click', loadRecipes);
+        refreshBtn.addEventListener('click', () => {
+            showInfo('Refreshing recipes...');
+            loadRecipes();
+        });
     }
     
     // Edit form submission

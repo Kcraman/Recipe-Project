@@ -74,10 +74,11 @@ async function loadUsers() {
         filteredUsers = [...allUsers];
         updateStats();
         renderUsers();
+        showSuccess(`Successfully loaded ${allUsers.length} users`);
         
     } catch (error) {
         console.error("Error loading users:", error);
-        showError("Failed to load users");
+        showError("Failed to load users. Please try again.");
     }
 }
 
@@ -277,7 +278,7 @@ async function saveUserChanges() {
         
     } catch (error) {
         console.error("Error updating user:", error);
-        showError("Failed to update user");
+        showError("Failed to update user. Please try again.");
     }
 }
 
@@ -299,20 +300,66 @@ async function confirmDeleteUser() {
         
     } catch (error) {
         console.error("Error deleting user:", error);
-        showError("Failed to delete user");
+        showError("Failed to delete user. Please try again.");
     }
 }
 
 // Show success message
 function showSuccess(message) {
-    // You can implement a toast notification system here
-    alert(message);
+    showNotification(message, 'success', 'Success');
 }
 
 // Show error message
 function showError(message) {
-    // You can implement a toast notification system here
-    alert('Error: ' + message);
+    showNotification(message, 'error', 'Error');
+}
+
+// Show info message
+function showInfo(message) {
+    showNotification(message, 'info', 'Info');
+}
+
+// Notification system
+function showNotification(message, type = 'info', title = 'Notification') {
+    const container = document.getElementById('notificationContainer');
+    if (!container) return;
+    
+    const notification = document.createElement('div');
+    notification.className = `notification ${type}`;
+    
+    const icon = type === 'success' ? 'fas fa-check-circle' : 
+                 type === 'error' ? 'fas fa-exclamation-circle' : 
+                 'fas fa-info-circle';
+    
+    notification.innerHTML = `
+        <i class="${icon} notification-icon"></i>
+        <div class="notification-content">
+            <div class="notification-title">${title}</div>
+            <div class="notification-message">${message}</div>
+        </div>
+        <button class="notification-close" onclick="this.parentElement.remove()">
+            <i class="fas fa-times"></i>
+        </button>
+    `;
+    
+    container.appendChild(notification);
+    
+    // Trigger animation
+    setTimeout(() => {
+        notification.classList.add('show');
+    }, 10);
+    
+    // Auto remove after 5 seconds
+    setTimeout(() => {
+        if (notification.parentElement) {
+            notification.classList.remove('show');
+            setTimeout(() => {
+                if (notification.parentElement) {
+                    notification.remove();
+                }
+            }, 400);
+        }
+    }, 5000);
 }
 
 // Logout function
@@ -350,7 +397,10 @@ document.addEventListener('DOMContentLoaded', function() {
     });
     
     // Refresh button
-    document.getElementById('refreshBtn').addEventListener('click', loadUsers);
+    document.getElementById('refreshBtn').addEventListener('click', function() {
+        showInfo('Refreshing users...');
+        loadUsers();
+    });
     
     // Logout button
     document.getElementById('logoutBtn').addEventListener('click', logout);
