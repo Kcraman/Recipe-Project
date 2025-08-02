@@ -848,19 +848,27 @@ document.getElementById('find-recipes-btn').addEventListener('click', async () =
       ? recipeData.ingredients.map(i => i.toLowerCase())
       : (typeof recipeData.ingredients === 'string' ? [recipeData.ingredients.toLowerCase()] : []);
     
-    // Use strict matching for ingredients
-    let hasMatchingIngredient = false;
+    // Calculate how many input ingredients match recipe ingredients
+    let matchingIngredientsCount = 0;
     
     ingredients.forEach(inputIngredient => {
+      let ingredientMatched = false;
       recipeIngredients.forEach(recipeIngredient => {
         const similarity = calculateSimilarityWithMisspellings(inputIngredient, recipeIngredient);
         if (similarity > 0.6) { // Stricter threshold for ingredient matching
-          hasMatchingIngredient = true;
+          ingredientMatched = true;
         }
       });
+      if (ingredientMatched) {
+        matchingIngredientsCount++;
+      }
     });
     
-    if (hasMatchingIngredient) {
+    // Check if recipe has at least 75% of the entered ingredients
+    const requiredMatchPercentage = 0.75;
+    const requiredMatches = Math.ceil(ingredients.length * requiredMatchPercentage);
+    
+    if (matchingIngredientsCount >= requiredMatches) {
       matchingRecipeIds.push(doc.id);
     }
   });
@@ -870,7 +878,7 @@ document.getElementById('find-recipes-btn').addEventListener('click', async () =
     sessionStorage.setItem('ingredientSearchTerm', inputValue);
     window.location.href = '../homeingredient/homeingredient.html';
   } else {
-    errorContainer.innerHTML = `<i class="fas fa-exclamation-circle"></i> No recipes found with those ingredients.`;
+    errorContainer.innerHTML = `<i class="fas fa-exclamation-circle"></i> No recipes found with at least 75% of those ingredients.`;
     errorContainer.style.display = 'block';
     setTimeout(() => { errorContainer.style.display = 'none'; }, 5000);
   }

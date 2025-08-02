@@ -431,7 +431,7 @@ function calculateComplexMisspellingSimilarity(str1, str2) {
       resultArea.innerHTML = '<div style="color:#d63031;">Please enter at least one ingredient.</div>';
       return;
     }
-    const inputIngredients = input.split(',').map(i => i.trim()).filter(i => i);
+    const inputIngredients = input.split(/,|\s+/).map(i => i.trim()).filter(i => i);
     const recipesRef = collection(db, "Recipes");
     const recipesSnapshot = await getDocs(recipesRef);
     let foundAny = false;
@@ -441,18 +441,27 @@ function calculateComplexMisspellingSimilarity(str1, str2) {
       const data = doc.data();
       const recipeIngredients = (data.ingredients || []).map(i => i.toLowerCase());
       
-      // Use strict matching for ingredients (like home page)
-      let hasMatchingIngredient = false;
+      // Calculate how many input ingredients match recipe ingredients
+      let matchingIngredientsCount = 0;
+      
       inputIngredients.forEach(inputIngredient => {
+        let ingredientMatched = false;
         recipeIngredients.forEach(recipeIngredient => {
           const similarity = calculateSimilarityWithMisspellings(inputIngredient, recipeIngredient);
           if (similarity > 0.6) { // Stricter threshold for ingredient matching
-            hasMatchingIngredient = true;
+            ingredientMatched = true;
           }
         });
+        if (ingredientMatched) {
+          matchingIngredientsCount++;
+        }
       });
       
-      if (hasMatchingIngredient) {
+      // Check if recipe has at least 75% of the entered ingredients
+      const requiredMatchPercentage = 0.75;
+      const requiredMatches = Math.ceil(inputIngredients.length * requiredMatchPercentage);
+      
+      if (matchingIngredientsCount >= requiredMatches) {
         foundAny = true;
         html += `<div class="recipe-result" data-id="${doc.id}">
           <div class="recipe-title">${data.name}</div>
@@ -463,7 +472,9 @@ function calculateComplexMisspellingSimilarity(str1, str2) {
     });
     
     if (!foundAny) {
-      html = '<div style="color:#d63031;">No recipes found with the given ingredients.</div>';
+      html = '<div style="color:#d63031;">No recipes found with at least 75% of the given ingredients.</div>';
+    } else {
+      html = '<div style="color:#28a745; margin-bottom: 20px; font-weight: 600;"><i class="fas fa-info-circle"></i> Showing recipes with at least 75% of your ingredients</div>' + html;
     }
     resultArea.innerHTML = html;
     // Add save button logic

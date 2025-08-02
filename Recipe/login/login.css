@@ -220,5 +220,84 @@ button:hover {
     }
 }
 
+/* Modal Styles */
+.modal {
+    display: none;
+    position: fixed;
+    z-index: 1000;
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.5);
+    backdrop-filter: blur(5px);
+    animation: fadeIn 0.3s ease-out;
+}
 
+.modal-content {
+    background-color: rgba(255, 255, 255, 0.95);
+    margin: 10% auto;
+    padding: 40px;
+    border-radius: 15px;
+    width: 90%;
+    max-width: 450px;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+    backdrop-filter: blur(10px);
+    position: relative;
+    animation: slideIn 0.3s ease-out;
+}
 
+.close {
+    position: absolute;
+    right: 20px;
+    top: 15px;
+    font-size: 28px;
+    font-weight: bold;
+    color: #666;
+    cursor: pointer;
+    transition: color 0.3s ease;
+}
+
+.close:hover {
+    color: #5B4B3A;
+}
+
+.modal-content h3 {
+    text-align: center;
+    margin-bottom: 15px;
+    font-size: 24px;
+    color: #3f3428;
+}
+
+.modal-content p {
+    text-align: center;
+    margin-bottom: 25px;
+    color: #666;
+    font-size: 14px;
+    line-height: 1.5;
+}
+
+/* Forgot Password Link Styles */
+.forgot-password {
+    margin-bottom: 15px;
+    text-align: center;
+}
+
+.forgot-password a {
+    color: #5B4B3A;
+    text-decoration: none;
+    font-weight: 500;
+    font-size: 14px;
+    transition: color 0.3s ease;
+}
+
+.forgot-password a:hover {
+    color: #745d47;
+    text-decoration: underline;
+}
+
+.signup-link {
+    text-align: center;
+    color: #666;
+    font-size: 14px;
+}
