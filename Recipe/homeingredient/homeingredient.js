@@ -236,7 +236,7 @@ function displaySearchResults(matchingRecipes, searchTerm) {
     const container = document.getElementById("recipe-details");
     
     let html = `<div class="search-results">
-        <h3>Recipes with at least 75% of "${searchTerm}" (${matchingRecipes.length} recipe${matchingRecipes.length > 1 ? 's' : ''})</h3>
+        <h3>Recipes with the ingredient: "${searchTerm}" (${matchingRecipes.length} recipe${matchingRecipes.length > 1 ? 's' : ''})</h3>
         <div class="recipes-grid">`;
     
     matchingRecipes.forEach(recipe => {

@@ -472,9 +472,9 @@ function calculateComplexMisspellingSimilarity(str1, str2) {
     });
     
     if (!foundAny) {
-      html = '<div style="color:#d63031;">No recipes found with at least 75% of the given ingredients.</div>';
+      html = '<div style="color:#d63031;">No recipes found with the given ingredients.</div>';
     } else {
-      html = '<div style="color:#28a745; margin-bottom: 20px; font-weight: 600;"><i class="fas fa-info-circle"></i> Showing recipes with at least 75% of your ingredients</div>' + html;
+      html = '<div style="color:#28a745; margin-bottom: 20px; font-weight: 600;"><i class="fas fa-info-circle"></i> Showing recipes with your ingredients</div>' + html;
     }
     resultArea.innerHTML = html;
     // Add save button logic
