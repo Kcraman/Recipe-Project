@@ -432,7 +432,7 @@ function startGuide() {
     isPaused = false;
     
     if (instructions.length > 0) {
-        showStepNotification('Real-time guide started!', 'info');
+        showStepNotification('Guide started!', 'info');
         startStep(0);
     }
 }
@@ -561,7 +561,7 @@ function finishGuide() {
     elapsedTime = 0;
     instructions = [];
     
-    showStepNotification('Guide finished!', 'info');
+    showStepNotification('Your Recipe is Ready!', 'info');
 }
 
 // Add event listeners for guide controls

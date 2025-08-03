@@ -416,58 +416,16 @@ searchBox.addEventListener('keypress', function(event) {
 
 // Global function for the back button
 window.goBack = function() {
-    console.log('Global goBack function called'); // Debug log
-    const searchResults = sessionStorage.getItem('searchResults');
-    const searchTerm = sessionStorage.getItem('currentSearchTerm');
+    // Check if we came from a specific page and navigate accordingly
+    const referrer = document.referrer;
+    const currentUrl = window.location.href;
     
-    console.log('Search results:', searchResults); // Debug log
-    console.log('Search term:', searchTerm); // Debug log
-    
-    if (searchResults && searchTerm) {
-        try {
-            document.getElementById('search-box').value = searchTerm;
-            const results = JSON.parse(searchResults);
-            
-            // Simple display of results without complex formatting
-            const container = document.getElementById("recipe-details");
-            let html = `<div class="search-results">
-                <h3>Search Results for "${searchTerm}" (${results.length} recipe${results.length > 1 ? 's' : ''})</h3>
-                <div class="recipes-grid">`;
-            
-            results.forEach(recipe => {
-                const isSaved = userSavedRecipeIds ? userSavedRecipeIds.includes(recipe.id) : false;
-                html += `
-                    <div class="recipe-card-item" data-id="${recipe.id}">
-                        <div class="recipe-header">
-                            <h4 class="recipe-title">${capitalize(recipe.data.name)}</h4>
-                            <button class="save-recipe-btn ${isSaved ? 'saved' : ''}" onclick="toggleSaveRecipe('${recipe.id}', '${recipe.data.name}')">
-                                <i class="fas ${isSaved ? 'fa-check' : 'fa-bookmark'}"></i>
-                                <span>${isSaved ? 'Saved' : 'Save'}</span>
-                            </button>
-                        </div>
-                        <div class="recipe-preview">
-                            <div class="recipe-info">
-                                <span><i class="fas fa-list"></i> ${recipe.data.ingredients ? (Array.isArray(recipe.data.ingredients) ? recipe.data.ingredients.length : 1) : 0} ingredients</span>
-                                <span><i class="fas fa-clock"></i> ${calculateTotalTime(recipe.data.instructions)}</span>
-                            </div>
-                            <button class="view-recipe-btn" onclick="window.location.href='../recipe-details/recipe-details.html?id=${recipe.id}'">
-                                <i class="fas fa-eye"></i> View Recipe
-                            </button>
-                        </div>
-                    </div>
-                `;
-            });
-            
-            html += `</div></div>`;
-            container.innerHTML = html;
-            console.log('Search results restored successfully'); // Debug log
-        } catch (error) {
-            console.error('Error restoring search results:', error); // Debug log
-            window.history.back();
-        }
-    } else {
-        console.log('No search results found, using normal back navigation'); // Debug log
+    // If we have a valid referrer and it's not the same page, go back
+    if (referrer && referrer !== currentUrl) {
         window.history.back();
+    } else {
+        // Default fallback - go to home page
+        window.location.href = '../home/home.html';
     }
 };
 
@@ -593,11 +551,7 @@ document.addEventListener('DOMContentLoaded', function() {
     const backBtn = document.getElementById('backBtn');
     if (backBtn) {
         backBtn.addEventListener('click', function() {
-            console.log('Back button clicked via event listener'); // Debug log
             window.goBack();
         });
-        console.log('Back button event listener added'); // Debug log
-    } else {
-        console.log('Back button not found'); // Debug log
     }
 });

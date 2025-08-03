@@ -286,7 +286,17 @@ document.getElementById('search-box').addEventListener('keypress', function(even
 
 // Global function for the back button
 window.goBack = function() {
-    window.history.back();
+    // Check if we came from a specific page and navigate accordingly
+    const referrer = document.referrer;
+    const currentUrl = window.location.href;
+    
+    // If we have a valid referrer and it's not the same page, go back
+    if (referrer && referrer !== currentUrl) {
+        window.history.back();
+    } else {
+        // Default fallback - go to home page
+        window.location.href = '../home/home.html';
+    }
 };
 
 // Set up back button functionality after DOM is loaded
